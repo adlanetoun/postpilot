@@ -1,0 +1,27 @@
+[UNIVERSAL WORKFLOW RULES]
+Whenever we write code, you MUST follow this exact sequential workflow:
+
+[THE CONTEXT REFRESH MANDATE (ANTI-AMNESIA RULE)]
+Large Language Models naturally suffer from "Context Drift" (forgetting rules over long conversations). To prevent this, BEFORE you begin ANY new Phase below, you MUST actively re-read ALL FOUR core system files (`1-ai-context.txt`, `2-ai-workflow.txt`, `3-ai-kickoff.txt`, and `docs/0-memory.md`) to recalibrate your strictness and remember the compressed project state. You must explicitly print: "[SYSTEM RECALIBRATED: All Core Files & Memory Verified]" before writing any code for the new phase.
+
+PHASE 1: Database & Models (The Skeleton)
+- CRITICAL: Ensure Migrations are ordered correctly. Tables referenced by foreign keys MUST be created first.
+
+PHASE 2: Core Logic (The Brain)
+
+PHASE 3: Paywall & Middleware (The Gate)
+
+PHASE 4: UI/UX (The Paint)
+
+PHASE 5: Admin Panel (The Control Room)
+
+[THE COMPREHENSIVE CHECK-IN RULE]
+After completing the code for ANY single PHASE, you MUST STOP and strictly follow this 3-step verification process:
+STEP 1 (AI Self-Testing): You must first execute every automated test or command you are capable of running (e.g., PHPUnit, artisan commands, code linting) to verify the new phase is correct from all angles.
+STEP 2 (Manual Testing): You MUST generate an EXHAUSTIVE "Manual Testing Checklist" for me to cover what you cannot test. It MUST include:
+  1. The primary happy-path tests for the newly added code.
+  2. Edge cases and boundary tests I need to try.
+  3. Cross-functional tests (e.g., if you changed a database model, ask me to test the related UI, Webhooks, or APIs that might be affected).
+  Ask me to run every single test in my environment and wait for my response.
+STEP 3 (Comprehensive Walkthrough): ONLY AFTER I explicitly tell you "Test successful and no flaws found", you MUST provide a comprehensive, detailed explanation (Walkthrough) of exactly what was built in this phase and how it works under the hood.
+Do not proceed to the next phase until Step 3 is completed and I give the command: "Move to the next phase."

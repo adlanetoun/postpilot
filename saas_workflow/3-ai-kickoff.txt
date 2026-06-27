@@ -1,0 +1,60 @@
+[PROJECT KICKOFF COMMAND]
+I am starting a new Micro SaaS project now. I have provided you with my `ai-context.txt` and `ai-workflow.txt` rules. 
+
+STEP 1: Ask me what my "Core Idea" is in one sentence.
+STEP 2: Once I answer, DO NOT write any code. Act as a Prompt Engineer and generate "Prompt 1" for me to give to an EXTERNAL AI to get a "Master Project Report".
+
+STEP 3: [SEQUENTIAL FILE GENERATION & CONTEXT INJECTION]
+We will generate documentation files sequentially based on the Master Report.
+
+**CRITICAL INSTRUCTION FOR ALL PROMPTS YOU GENERATE:** 
+1. **[CONTEXT INJECTION]**: You MUST explicitly inject our entire Tech Stack (Laravel 11, SQLite, Pure Blade, DaisyUI, Filament, Dodo Payments, Fly.io) into EVERY prompt you generate. This ensures the External AI does not hallucinate wrong technologies.
+2. **[EXHAUSTIVE DETAIL]**: Command the External AI to be extremely detailed, highly comprehensive, and lengthy. Do not let it summarize.
+3. **[CUMULATIVE CONTEXT CHAINING]**: For every prompt you generate (after the first one), you MUST include a bullet-point summary of the key decisions from ALL previously generated files. For example, when generating the Database Schema prompt, you must summarize the Requirements and the Pages. This ensures the External AI always operates with the full context of what has already been decided.
+
+**[THE 10 COMMANDMENTS OF PROMPT GENERATION]**:
+Whenever you generate a prompt for the External AI to create or modify a file, you MUST explicitly inject these 10 advanced constraints into the prompt to force the External AI into maximum intelligence:
+1. **The Expert Panel**: Instruct the AI to act as a panel of 3 experts (Principal Architect, DBA, Security Expert) debating the solution before answering.
+2. **Mandatory Deep Research**: Forbid reliance on pure memory. If applicable, command the AI to search the web for the latest Laravel 11/SQLite best practices and cite sources.
+3. **Negative Constraints**: Explicitly forbid generic Foo/Bar examples, non-production code, and treating the user as a beginner. Demand Staff-Engineer level code.
+4. **Plan-Critique-Execute**: Force the AI to output responses in strict sections: 1. Risk Analysis, 2. Stress Test, 3. Final Code.
+5. **Reverse Devil's Advocate**: Command the AI to find 3 fatal flaws in its own proposed solution, and then rewrite it to fix those flaws.
+6. **First Principles Thinking**: Instruct the AI to break down the problem to its core physical limits (e.g., SQLite locks, HTTP lifecycle) rather than copying common tutorials.
+7. **Defensive Mandate**: Force every function to start with fail-fast defensive programming (assume malicious input, assume APIs are down).
+8. **Minimalism (Code Golf)**: Penalize over-engineering. Demand the most elegant, compact code using native Laravel features and PHP 8.3 match/enums.
+9. **Internal Monologue**: Force the AI to open a `<step_by_step_reasoning>` block to think out loud before writing the final output.
+10. **The Abandonment Stress-Test**: Instruct the AI to build the code assuming it will be abandoned for 2 years without maintenance (focusing on self-healing and logging).
+
+**[ANTI-HALLUCINATION & STRICT ALIGNMENT RULE]**:
+While parsing the Master Report or generating the prompts below, if you find ANY ambiguity, lack of technical depth, or if you need to make a complex architectural choice, DO NOT GUESS. 
+- **STRICT ALIGNMENT CHECK:** Before saving any new file, you MUST verify it is 100% compatible with the previously saved files. If the External AI introduces a mismatch (e.g., adding a feature in File 3 that wasn't in File 1), DO NOT save it blindly.
+- If there are mismatches or ambiguities, stop immediately. Generate a "Clarification Prompt" for me to take to the External AI. In this prompt, explain your dilemma, inject our rules, and ask for the definitive solution. Wait for me to bring back the answer before you continue.
+
+For each file below:
+- Generate the detailed Prompt (with the Tech Stack injected, cumulative context, and the 10 Commandments) for me to give to the External AI.
+- Wait for me to paste the resulting text back to you.
+- DO NOT save the raw text directly. Parse it, format it, fix any hallucinations, ensure strict alignment, and THEN save it to the `docs/` folder.
+- **[DYNAMIC & ITERATIVE CRITIQUE RULE]**: After saving any file, you MUST STOP and initiate a critique cycle.
+  **MANDATORY PHASE (4 Passes):** You must generate a "Mini-Critique Prompt" and wait for my report(s). Upon receiving the report, update the file and list the changes/reasons. You must repeat this process strictly for 4 complete passes (Pass 1 to Pass 4) for every file.
+  **DYNAMIC PHASE (Post-Pass 4):** After the 4th pass, the process becomes dynamic. In the critique prompts, you must ask the External AI to include a strict STATUS flag: either `STATUS: APPROVED` or `STATUS: REVISION_REQUIRED`. If the returned reports indicate `REVISION_REQUIRED`, you will do another pass. If they indicate `APPROVED`, the cycle ends and we move to the next file.
+  **MULTI-AGENT CONSENSUS RULE:** I may provide you with critique reports from multiple different AI agents for the same prompt. If I do, you MUST NOT blindly accept one and ignore the others. You must cross-reference all provided reports, synthesize the best insights, resolve any technical conflicts between them, and update the file based on the strongest consensus of the agents.
+  **MVP CONSTRAINT (SPEED OVER PERFECTION):** In every "Mini-Critique Prompt" you generate, you MUST explicitly command the External AI: "This is an MVP (Minimum Viable Product). We prioritize speed to market. Do NOT critique minor issues, nitpicks, micro-optimizations, or non-critical edge cases. Focus ONLY on fatal architectural flaws, severe security risks, or major logical gaps."
+  **CRITICAL FOR DISCUSSIONS:** During this cycle, do not modify the file prematurely. Wait until I provide the report(s) from the External AI(s), and wait until I explicitly say "The discussion is complete, update the file now." Do not jump the gun.
+
+Follow this sequence exactly:
+1. Generate Prompt 2 for `docs/1-requirements-and-apis.md`. Focus purely on functional requirements, edge cases, and External APIs (with exact .env keys). Wait, format, save, and STOP for discussion.
+2. Generate Prompt 3 for `docs/2-pages-and-views.md`. **CRITICAL:** This prompt MUST command the External AI to explicitly define the EXACT list and number of UI pages we will build. It must strictly forbid adding any unnecessary extra pages to prevent UI feature creep. Wait, format, save, and STOP for discussion.
+3. Generate Prompt 4 for `docs/3-database-schema.md`. The Database MUST be designed to perfectly support only the features in File 1 and the exact pages in File 2. Wait, format, save, and STOP for discussion.
+4. Generate Prompt 5 for `docs/4-ui-design-system.md` (To define strict DaisyUI colors, layouts, and Tailwind classes for consistency). Wait, format, save, and STOP for discussion.
+5. Generate Prompt 6 for `docs/5-execution-plan.md` (incorporating our 5 Phases). Wait, format, save, and STOP for discussion.
+
+STEP 4: [EXTERNAL CRITIQUE & FINAL SYSTEM AUDIT]
+Before you create `0-memory.md` and finish the planning phase, we must do a final stress-test of our plan.
+1. Mentally review all 5 generated files together as a single, interconnected architecture. Actively search for gaps or mismatches.
+2. Generate a "Master Critique Prompt" for me to give to the External AI. This prompt MUST include the core idea, the tech stack, and a solid summary of our 5 generated files. Ask the External AI to act as a harsh Principal Architect, review the entire plan, and explicitly point out any missing components, logical flaws, security risks, or scalability bottlenecks in our architecture.
+3. Wait for me to paste the External AI's critique.
+4. If the critique reveals flaws, we will discuss them and you will update the relevant files accordingly.
+5. Only once the system is 100% airtight, perfectly aligned, and heavily critiqued, create `docs/0-memory.md`. Write the compressed project state here.
+- RULE: Keep `0-memory.md` concise. Summarize completed phases and keep only the immediate next steps detailed to save context window space.
+
+Once `0-memory.md` is created, ask for my permission to execute Phase 1.

@@ -16,6 +16,17 @@ class ProfileController extends Controller
      */
     public function edit(Request $request): View
     {
+        if (config('app.oauth_debug', false)) {
+            \Illuminate\Support\Facades\Log::info('ProfileController::edit page hit!', [
+                'method' => $request->method(),
+                'url' => $request->fullUrl(),
+                'query' => $request->all(),
+                'user_id' => Auth::id(),
+                'session_has_state' => session()->has('state'),
+                'session_state' => session()->get('state'),
+            ]);
+        }
+
         return view('profile.edit', [
             'user' => $request->user(),
         ]);
