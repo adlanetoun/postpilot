@@ -7,6 +7,9 @@
     "license": "MIT",
     "require": {
         "php": "^8.3",
+        "ext-intl": "*",
+        "ext-zip": "*",
+        "ext-pdo_sqlite": "*",
         "filament/filament": "^5.6",
         "laravel/framework": "^13.8",
         "laravel/socialite": "^5.28",
@@ -82,6 +85,7 @@
         "optimize-autoloader": true,
         "preferred-install": "dist",
         "sort-packages": true,
+        "platform-check": false,
         "allow-plugins": {
             "pestphp/pest-plugin": true,
             "php-http/discovery": true
