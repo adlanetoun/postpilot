@@ -9,6 +9,8 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use App\DTOs\PostContentDTO;
+use App\Services\SocialMedia\PostPeerAdapter;
 
 class PublishScheduledPosts extends Command
 {
@@ -71,9 +73,16 @@ class PublishScheduledPosts extends Command
 
         // SECURITY FIX VULN-14: Limit query to prevent memory bomb on backlog.
         // Order by scheduled_at ASC to publish oldest-first (fairness).
+        // REVENUE GUARD: Skip posts from demo campaigns — they must never reach
+        // PostPeer/Twitter even if a user somehow bypassed the approval block.
         $posts = Post::with('campaign.project.user.socialAccounts')
             ->where('status', 'approved')
+            ->where('is_demo', false)
             ->where('scheduled_at', '<=', now())
+            ->whereHas('campaign', function ($q) {
+                $q->where('status', 'active')
+                  ->where('is_demo', false);
+            })
             ->orderBy('scheduled_at', 'asc')
             ->limit($this->batchLimit)
             ->get();
@@ -90,94 +99,147 @@ class PublishScheduledPosts extends Command
         foreach ($posts as $post) {
             $user = $post->campaign->project->user;
             
-            // Find corresponding social account connection
-            $socialAccount = $user->socialAccounts
-                ->where('provider', strtolower($post->platform))
-                ->first();
-
-            if (!$socialAccount) {
-                $errorMsg = "No connected social account found for platform: " . $post->platform;
-                $post->update([
-                    'status' => 'failed',
-                    'error_message' => $errorMsg,
-                ]);
-                $this->error("Post #{$post->id}: {$errorMsg}");
-                continue;
-            }
-
-            // Check if the account is currently quarantined (circuit breaker)
-            if ($socialAccount->quarantined_until && $socialAccount->quarantined_until->isFuture()) {
-                $errorMsg = "Social account {$socialAccount->username} is quarantined until " . $socialAccount->quarantined_until;
-                $post->update([
-                    'status' => 'paused',
-                    'error_message' => $errorMsg,
-                ]);
-                $this->error("Post #{$post->id} paused: {$errorMsg}");
-                continue;
-            }
-
-            $this->info("Publishing Post #{$post->id} ({$post->platform}) using account: {$socialAccount->username}");
-
-            // Pre-flight check: Idempotency (Prevent double-publishing)
-            if ($post->platform_post_id) {
-                $this->info("Post #{$post->id} already published (ID: {$post->platform_post_id}). Skipping.");
-                $post->update(['status' => 'published']);
-                continue;
-            }
-
-            // Pre-flight check: Content Length Validation
-            if (strtolower($post->platform) === 'twitter' || strtolower($post->platform) === 'x') {
-                if (mb_strlen($post->content) > 280) {
-                    $errorMsg = "Post content exceeds Twitter 280 character limit.";
-                    $post->update([
-                        'status' => 'failed',
-                        'error_message' => $errorMsg,
-                    ]);
-                    $this->error("Post #{$post->id} failed: {$errorMsg}");
-                    continue;
-                }
-            }
-
-            // SECURITY FIX VULN-1: Atomic claim — prevents double-publish race condition.
-            // Uses UPDATE ... WHERE to ensure only ONE worker can claim this post.
+            // Capture the post's updated_at BEFORE the atomic claim so we can
+            // detect if it was modified by another worker between our SELECT
+            // and the publish call (FIX LEAK-6: idempotency on stale claim).
+            // SECURITY FIX VULN-1 & FIX LEAK-6: Atomic claim with updated_at check — prevents double-publish race condition and stale edits.
             $claimed = Post::where('id', $post->id)
                 ->where('status', 'approved')
+                ->where('updated_at', $post->updated_at)
                 ->update(['status' => 'publishing', 'updated_at' => now()]);
 
             if ($claimed === 0) {
-                $this->info("Post #{$post->id} already claimed by another worker. Skipping.");
+                $this->info("Post #{$post->id} already claimed or modified by another worker. Skipping.");
                 continue;
             }
 
-            try {
-                // Call external APIs
-                $platformPostId = $this->publishToPlatform($post, $socialAccount);
+            if ($post->platform === 'omnichannel') {
+                $platformsToPublish = $post->campaign->platforms ?? [];
+                if (is_string($platformsToPublish)) {
+                    $platformsToPublish = json_decode($platformsToPublish, true) ?? [];
+                }
+                $platformPostIds = $post->platform_post_id ? json_decode($post->platform_post_id, true) : [];
+                $errorMessages = [];
+                $allSuccess = true;
 
-                // Save publication state
-                $post->update([
-                    'status' => 'published',
-                    'published_at' => now(),
-                    'platform_post_id' => $platformPostId,
-                    'error_message' => null,
-                ]);
+                foreach ($platformsToPublish as $platform) {
+                    if (isset($platformPostIds[$platform])) continue;
 
-                $publishedCount++;
-                $this->info("Post #{$post->id} published successfully. Platform ID: {$platformPostId}");
-                Log::info("PostPilot published post #{$post->id} on {$post->platform} (Username: {$socialAccount->username}) with platform ID: {$platformPostId}");
+                    $socialAccount = $post->campaign->project->socialAccounts->where('provider', strtolower($platform))->first();
+                    if (!$socialAccount) {
+                        $errorMessages[$platform] = "No connected social account found.";
+                        $allSuccess = false;
+                        continue;
+                    }
 
-            } catch (\Exception $e) {
-                $post->update([
-                    'status' => 'failed',
-                    'error_message' => 'Publishing failed: ' . $e->getMessage(),
-                ]);
-                $this->error("Post #{$post->id} failed: " . $e->getMessage());
-                Log::error("PostPilot publication failed for post #{$post->id}: " . $e->getMessage());
-            }
+                    if ($socialAccount->quarantined_until && $socialAccount->quarantined_until->isFuture()) {
+                        $errorMessages[$platform] = "Account quarantined until {$socialAccount->quarantined_until}.";
+                        $allSuccess = false;
+                        continue;
+                    }
 
-            // SECURITY FIX VULN-6: Inter-request delay to avoid rate limit bursts.
-            // Sleep between API calls to spread load across time.
-            if ($this->interRequestDelayMs > 0) {
-                usleep($this->interRequestDelayMs * 1000);
+                    // Check if Twitter is already proven non-Premium
+                    if (in_array(strtolower($platform), ['twitter', 'x']) && $socialAccount->is_premium === false) {
+                        $errorMessages[$platform] = "Skipped Twitter: Account @{$socialAccount->username} is standard Free Twitter. Upgrade to X Premium for 30-day AI posts.";
+                        continue;
+                    }
+
+                    try {
+                        $id = $this->publishToPlatform($post, $socialAccount, $platform);
+                        $platformPostIds[$platform] = $id;
+
+                        if (in_array(strtolower($platform), ['twitter', 'x'])) {
+                            $socialAccount->update(['is_premium' => true]);
+                        }
+
+                        $this->info("Post #{$post->id} published to {$platform}. Platform ID: {$id}");
+                    } catch (\Exception $e) {
+                        $errMsg = $e->getMessage();
+                        if (in_array(strtolower($platform), ['twitter', 'x'])) {
+                            $socialAccount->update(['is_premium' => false]);
+                            $errorMessages[$platform] = "X Premium Required: Account @{$socialAccount->username} is standard Free Twitter. Facebook & LinkedIn will continue publishing.";
+                        } else {
+                            $errorMessages[$platform] = $errMsg;
+                            $allSuccess = false;
+                        }
+                        $this->error("Post #{$post->id} failed on {$platform}: " . $errMsg);
+                    }
+
+                    if ($this->interRequestDelayMs > 0) {
+                        usleep($this->interRequestDelayMs * 1000);
+                    }
+                }
+
+                // If at least one platform succeeded (e.g. Facebook or LinkedIn), mark post as published!
+                $hasAnySuccess = !empty($platformPostIds);
+
+                if ($hasAnySuccess) {
+                    $post->update([
+                        'status' => 'published',
+                        'published_at' => now(),
+                        'platform_post_id' => json_encode($platformPostIds),
+                        'error_message' => !empty($errorMessages) ? json_encode($errorMessages) : null,
+                    ]);
+                    $publishedCount++;
+                } else {
+                    $post->update([
+                        'status' => 'failed',
+                        'platform_post_id' => json_encode($platformPostIds),
+                        'error_message' => json_encode($errorMessages),
+                    ]);
+                }
+
+            } else {
+                // Legacy Single Platform Support
+                $socialAccount = $post->campaign->project->socialAccounts->where('provider', strtolower($post->platform))->first();
+
+                if (!$socialAccount) {
+                    $post->update(['status' => 'failed', 'error_message' => "No connected social account found for platform: " . $post->platform]);
+                    continue;
+                }
+
+                if (in_array(strtolower($post->platform), ['twitter', 'x']) && $socialAccount->is_premium === false) {
+                    $post->update([
+                        'status' => 'failed',
+                        'error_message' => "X Premium Required: Account @{$socialAccount->username} is standard Free Twitter (280 char limit). Upgrade to X Premium or connect Facebook/LinkedIn."
+                    ]);
+                    continue;
+                }
+
+                if ($socialAccount->quarantined_until && $socialAccount->quarantined_until->isFuture()) {
+                    $post->update(['status' => 'paused', 'error_message' => "Account quarantined."]);
+                    continue;
+                }
+
+                if ($post->platform_post_id) {
+                    $post->update(['status' => 'published']);
+                    continue;
+                }
+
+                try {
+                    $platformPostId = $this->publishToPlatform($post, $socialAccount);
+                    if (in_array(strtolower($post->platform), ['twitter', 'x'])) {
+                        $socialAccount->update(['is_premium' => true]);
+                    }
+                    $post->update([
+                        'status' => 'published',
+                        'published_at' => now(),
+                        'platform_post_id' => $platformPostId,
+                        'error_message' => null,
+                    ]);
+                    $publishedCount++;
+                } catch (\Exception $e) {
+                    $errMsg = $e->getMessage();
+                    if (in_array(strtolower($post->platform), ['twitter', 'x']) && (str_contains($errMsg, '280') || str_contains($errMsg, 'character limit'))) {
+                        $socialAccount->update(['is_premium' => false]);
+                        $errMsg = "X Premium Required: Account @{$socialAccount->username} is standard Free Twitter (280 char limit). Upgrade to X Premium or connect Facebook/LinkedIn.";
+                    }
+                    $post->update(['status' => 'failed', 'error_message' => 'Publishing failed: ' . $errMsg]);
+                }
+
+                if ($this->interRequestDelayMs > 0) {
+                    usleep($this->interRequestDelayMs * 1000);
+                }
             }
         }
 
@@ -196,9 +258,9 @@ class PublishScheduledPosts extends Command
     /**
      * Publish the post content to the corresponding platform API.
      */
-    private function publishToPlatform(Post $post, SocialAccount $socialAccount): string
+    private function publishToPlatform(Post $post, SocialAccount $socialAccount, ?string $targetPlatform = null): string
     {
-        $platform = strtolower($post->platform);
+        $platform = strtolower($targetPlatform ?? $post->platform);
         
         // Retrieve access token. Refresh if expired.
         $token = $socialAccount->access_token;
@@ -275,127 +337,54 @@ class PublishScheduledPosts extends Command
             throw new \Exception("Twitter API Error: " . $response->body());
         }
 
-        if ($platform === 'linkedin') {
-            $authorUrn = 'urn:li:person:' . $socialAccount->provider_user_id;
-
-            // Attempt using the /v2/posts API first
-            $response = $this->httpClient()->withToken($token)
-                ->withHeaders([
-                    'X-Restli-Protocol-Version' => '2.0.0',
-                    'Content-Type' => 'application/json',
-                ])
-                ->post('https://api.linkedin.com/v2/posts', [
-                    'author' => $authorUrn,
-                    'commentary' => $post->content,
-                    'visibility' => 'PUBLIC',
-                    'distribution' => [
-                        'feedDistribution' => 'MAIN_FEED',
-                        'targetEntities' => [],
-                    ],
-                    'lifecycleState' => 'PUBLISHED',
-                ]);
-
-            if ($response->successful()) {
-                return $response->header('x-restli-id') ?: ($response->json('id') ?: 'linkedin_post_' . bin2hex(random_bytes(6)));
-            }
-
-            // SECURITY FIX VULN-7: Handle 429 rate limiting for LinkedIn
-            if ($response->status() === 429) {
-                $retryAfter = (int) $response->header('Retry-After', 900);
-                $socialAccount->update(['quarantined_until' => now()->addSeconds($retryAfter)]);
-                Log::warning("LinkedIn rate limit hit for {$socialAccount->username}. Quarantined for {$retryAfter}s.");
-                throw new \Exception("LinkedIn rate limited (429). Account quarantined for {$retryAfter}s.");
-            }
-
-            // Fallback to older UGCPosts API if newer posts API is restricted/forbidden
-            $this->info("LinkedIn /v2/posts failed (" . $response->status() . "). Trying /v2/ugcPosts fallback...");
-            $response = $this->httpClient()->withToken($token)
-                ->withHeaders([
-                    'X-Restli-Protocol-Version' => '2.0.0',
-                    'Content-Type' => 'application/json',
-                ])
-                ->post('https://api.linkedin.com/v2/ugcPosts', [
-                    'author' => $authorUrn,
-                    'lifecycleState' => 'PUBLISHED',
-                    'specificContent' => [
-                        'com.linkedin.ugc.ShareContent' => [
-                            'shareCommentary' => [
-                                'text' => $post->content,
-                            ],
-                            'shareMediaCategory' => 'NONE',
-                        ],
-                    ],
-                    'visibility' => [
-                        'com.linkedin.ugc.MemberNetworkVisibility' => 'PUBLIC',
-                    ],
-                ]);
-
-            if ($response->successful()) {
-                return $response->json('id');
-            }
-
-            // SECURITY FIX VULN-7: Handle 429 on fallback API too
-            if ($response->status() === 429) {
-                $retryAfter = (int) $response->header('Retry-After', 900);
-                $socialAccount->update(['quarantined_until' => now()->addSeconds($retryAfter)]);
-                throw new \Exception("LinkedIn rate limited (429). Account quarantined for {$retryAfter}s.");
-            }
-
-            // Retry on 401
-            if ($response->status() === 401) {
-                $this->info("LinkedIn token unauthorized (401). Retrying with token refresh.");
-                $token = $this->refreshToken($socialAccount);
-                $response = $this->httpClient()->withToken($token)
-                    ->withHeaders([
-                        'X-Restli-Protocol-Version' => '2.0.0',
-                        'Content-Type' => 'application/json',
-                    ])
-                    ->post('https://api.linkedin.com/v2/ugcPosts', [
-                        'author' => $authorUrn,
-                        'lifecycleState' => 'PUBLISHED',
-                        'specificContent' => [
-                            'com.linkedin.ugc.ShareContent' => [
-                                'shareCommentary' => [
-                                    'text' => $post->content,
-                                ],
-                                'shareMediaCategory' => 'NONE',
-                            ],
-                        ],
-                        'visibility' => [
-                            'com.linkedin.ugc.MemberNetworkVisibility' => 'PUBLIC',
-                        ],
-                    ]);
-                if ($response->successful()) {
-                    return $response->json('id');
-                }
-            }
-
-            throw new \Exception("LinkedIn API Error: " . $response->body());
-        }
-
-        if ($platform === 'facebook') {
-            $apiVersion = config('services.facebook.api_version', 'v21.0');
-            $response = $this->httpClient()->post("https://graph.facebook.com/{$apiVersion}/{$socialAccount->provider_user_id}/feed", [
-                'message' => $post->content,
-                'access_token' => $token,
-            ]);
-
-            if ($response->successful()) {
-                return $response->json('id');
-            }
-
-            // SECURITY FIX VULN-7: Handle 429 rate limiting for Facebook
-            if ($response->status() === 429) {
-                $retryAfter = (int) $response->header('Retry-After', 900);
-                $socialAccount->update(['quarantined_until' => now()->addSeconds($retryAfter)]);
-                throw new \Exception("Facebook rate limited (429). Account quarantined for {$retryAfter}s.");
-            }
-
-            throw new \Exception("Facebook API Error: " . $response->body());
+        // Facebook and LinkedIn: Publish via PostPeer
+        if (in_array($platform, ['facebook', 'linkedin'])) {
+            return $this->publishViaPostPeer($post, $platform);
         }
 
 
         throw new \Exception("Unsupported platform: {$platform}");
+    }
+
+    /**
+     * Publish to Facebook or LinkedIn via PostPeer API.
+     * PostPeer manages the OAuth tokens for these platforms.
+     */
+    private function publishViaPostPeer(Post $post, string $platform): string
+    {
+        $postpeerAccount = $post->campaign->project->socialAccounts
+            ->where('provider', 'postpeer')
+            ->first();
+
+        if (!$postpeerAccount) {
+            throw new \Exception("No PostPeer profile found for this project. Cannot publish to {$platform}.");
+        }
+
+        $targetAccount = $post->campaign->project->socialAccounts
+            ->where('provider', $platform)
+            ->first();
+
+        if (!$targetAccount) {
+            throw new \Exception("No social account found for {$platform} in this project.");
+        }
+
+        $adapter = app(PostPeerAdapter::class);
+        $dto = new PostContentDTO(
+            content: $post->content,
+            platforms: [['platform' => $platform, 'accountId' => $targetAccount->access_token]],
+        );
+
+        $this->info("Publishing Post #{$post->id} to {$platform} via PostPeer (Profile: {$postpeerAccount->provider_user_id})");
+
+        $result = $adapter->publishPost($postpeerAccount->provider_user_id, $dto);
+
+        $postId = $result['id'] ?? $result['postId'] ?? null;
+        if ($postId) {
+            return (string) $postId;
+        }
+
+        // PostPeer returned success but no post ID in response
+        return 'postpeer_' . $platform . '_' . bin2hex(random_bytes(6));
     }
 
     /**
@@ -425,17 +414,6 @@ class PublishScheduledPosts extends Command
                     'client_id' => $clientId,
                 ]);
 
-        } elseif ($platform === 'linkedin') {
-            $clientId = config('services.linkedin.client_id');
-            $clientSecret = config('services.linkedin.client_secret');
-
-            $response = $this->httpClient()->asForm()
-                ->post('https://www.linkedin.com/oauth/v2/accessToken', [
-                    'grant_type' => 'refresh_token',
-                    'refresh_token' => $socialAccount->refresh_token,
-                    'client_id' => $clientId,
-                    'client_secret' => $clientSecret,
-                ]);
         } else {
             throw new \Exception("Automatic token refresh is not supported for platform: {$platform}");
         }

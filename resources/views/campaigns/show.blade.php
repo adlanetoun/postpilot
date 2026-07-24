@@ -1,6 +1,17 @@
 <x-app-layout>
     @php 
         $groupedPosts = $posts->groupBy('day_number'); 
+        $firstPost = $posts->sortBy('scheduled_at')->first();
+        $startDayOfWeek = 1; 
+        $startDate = null;
+        if ($firstPost) {
+            $userTimezone = Auth::user()->timezone ?? 'UTC';
+            $startDate = \Carbon\Carbon::parse($firstPost->scheduled_at)->timezone($userTimezone);
+            $startDayOfWeek = $startDate->dayOfWeekIso;
+        }
+        $offset = $startDayOfWeek - 1;
+        $totalCells = 30 + $offset;
+        $gridCellsCount = (int) ceil($totalCells / 7) * 7;
     @endphp
     
     <style>
@@ -45,6 +56,10 @@
             text-decoration: none; display: inline-block;
         }
         .m-btn-back:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(0,0,0,0.05); border-color: rgba(0,0,0,0.2); }
+        .m-btn-delete {
+            width: 48px; height: 48px; border-radius: 50%; border: 1px solid rgba(0,0,0,0.1); display: flex; align-items: center; justify-content: center; color: #71717A; transition: all 0.3s; cursor: pointer; background: transparent; flex-shrink: 0;
+        }
+        .m-btn-delete:hover { background: #DC2626; color: #fff; border-color: #DC2626; transform: rotate(90deg); }
 
         /* Sleek Progress Bar for Active Mode */
         .m-progress-container { width: 100%; padding-top: 1.5rem; border-top: 1px solid rgba(0,0,0,0.06); }
@@ -67,13 +82,12 @@
             margin-bottom: 2rem;
         }
         .m-cal-day-label {
-            text-align: right;
+            text-align: center;
             font-size: 0.75rem;
             font-weight: 800;
             text-transform: uppercase;
             letter-spacing: 0.2em;
             color: #A1A1AA;
-            padding-right: 1.5rem;
         }
 
         .m-cal-grid {
@@ -171,6 +185,22 @@
 
         <!-- Dynamic Command Center -->
         <div class="m-command-dock">
+            @if($campaign->is_demo)
+                <!-- FREE PREVIEW BANNER — only shown for demo campaigns -->
+                <div style="background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%); border: 2px solid #F59E0B; border-radius: 24px; padding: 1.5rem 2rem; display: flex; align-items: center; gap: 1.5rem;">
+                    <div style="font-size: 2rem;">🎁</div>
+                    <div style="flex: 1;">
+                        <h3 style="font-size: 1.1rem; font-weight: 900; color: #78350F; margin: 0 0 0.3rem;">Free Preview Campaign</h3>
+                        <p style="font-size: 0.9rem; color: #92400E; margin: 0; line-height: 1.5;">
+                            You're seeing realistic sample content generated for your brand. <strong>To publish to your social channels, upgrade and regenerate with real AI.</strong>
+                        </p>
+                    </div>
+                    <a href="{{ route('profile.edit', ['tab' => 'billing']) }}" style="background: #0A0A0A; color: #fff; padding: 0.9rem 1.8rem; border-radius: 100px; font-weight: 800; text-decoration: none; font-size: 0.85rem; white-space: nowrap; text-transform: uppercase; letter-spacing: 0.05em;">
+                        Upgrade to Publish →
+                    </a>
+                </div>
+            @endif
+
             <div class="m-command-dock-top">
                 <div class="m-command-info">
                     <div class="m-status-icon {{ $campaign->status === 'active' ? 'is-active' : '' }}">
@@ -183,8 +213,12 @@
                     <div>
                         <h2 class="m-command-title">
                             {{ $project->name }}
-                            @if($campaign->status === 'active')
+                            @if($campaign->is_demo)
+                                <span class="m-command-badge" style="background: #FEF3C7; color: #92400E; border: 1px solid #FDE68A; padding: 0.3rem 0.8rem; border-radius: 100px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em;">Free Preview</span>
+                            @elseif($campaign->status === 'active')
                                 <span class="m-command-badge m-badge-active">Active</span>
+                            @elseif($campaign->status === 'paused')
+                                <span class="m-command-badge" style="background: #FFFBEB; color: #D97706; border: 1px solid #FEF3C7; padding: 0.3rem 0.8rem; border-radius: 100px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; transform: translateY(-2px);">Paused</span>
                             @else
                                 <span class="m-command-badge m-badge-draft">{{ ucfirst($campaign->status) }}</span>
                             @endif
@@ -197,6 +231,8 @@
                         <p class="m-command-subtitle">
                             @if($campaign->status === 'active')
                                 Autopilot is running. Your audience is being engaged automatically.
+                            @elseif($campaign->status === 'paused')
+                                Autopilot is paused. Post publishing is temporarily suspended.
                             @else
                                 Reviewing past campaign generation.
                             @endif
@@ -204,9 +240,35 @@
                     </div>
                 </div>
                 <div class="m-command-actions">
-                    <a href="{{ route('campaigns.index') }}" class="m-btn-back">
-                        Back to Library
-                    </a>
+                    @if(in_array($campaign->status, ['active', 'paused']))
+                        <form action="{{ route('campaigns.togglePause', $campaign->id) }}" method="POST" class="m-0 p-0" style="display:inline;">
+                            @csrf
+                            <button type="submit" class="m-btn-back" style="background: #FFFBEB; color: #D97706; border-color: #FDE68A; cursor: pointer; font-weight: 800;">
+                                @if($campaign->status === 'active')
+                                    ⏸ PAUSE AUTOPILOT
+                                @else
+                                    ▶ RESUME AUTOPILOT
+                                @endif
+                            </button>
+                        </form>
+
+                        <form action="{{ route('campaigns.revokeApproval', $campaign->id) }}" method="POST" class="m-0 p-0" style="display:inline;" onsubmit="return confirm('Revoke campaign approval and revert posts to draft status?');">
+                            @csrf
+                            <button type="submit" class="m-btn-back" style="background: #F1F5F9; color: #475569; border-color: #E2E8F0; cursor: pointer; font-weight: 800;">
+                                ↰ REVOKE APPROVAL
+                            </button>
+                        </form>
+                    @endif
+                    <x-confirm-modal 
+                        id="delete-project-modal" 
+                        :action="route('projects.destroy', $project->id)" 
+                        title="Delete Project?" 
+                        message="This will permanently delete the project, all campaigns, and all scheduled social posts. Irreversible."
+                        confirmText="Delete Project" 
+                        triggerClass="m-btn-delete"
+                    >
+                        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                    </x-confirm-modal>
                 </div>
             </div>
             
@@ -217,6 +279,39 @@
                 </div>
                 <div class="m-progress-track">
                     <div class="m-progress-fill" style="width: {{ ($publishedDaysCount / 30) * 100 }}%"></div>
+                </div>
+            </div>
+
+            <!-- Active Channels Bar matching Screenshot Design -->
+            <div class="pt-5 border-t border-slate-100 flex items-center gap-4 flex-wrap mt-2">
+                <span class="text-[11px] font-black text-slate-400 uppercase tracking-widest">ACTIVE CHANNELS:</span>
+                <div class="flex items-center gap-2.5 flex-wrap">
+                    @forelse($project->socialAccounts->where('provider', '!=', 'postpeer') as $account)
+                        <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold bg-slate-50 text-slate-800 border border-slate-200/80 shadow-2xs">
+                            @if(in_array($account->provider, ['twitter', 'x']))
+                                <span class="font-extrabold text-slate-900 text-sm leading-none">𝕏</span>
+                                <span>Twitter / X</span>
+                                <span class="text-slate-500 font-normal">({{ $account->username }})</span>
+                                <span class="text-emerald-500 font-bold ml-0.5">✓</span>
+                            @elseif($account->provider === 'linkedin')
+                                <span class="font-black text-blue-600 text-xs bg-blue-50 px-1 rounded">in</span>
+                                <span>LinkedIn</span>
+                                <span class="text-slate-500 font-normal">({{ $account->username }})</span>
+                                <span class="text-emerald-500 font-bold ml-0.5">✓</span>
+                            @elseif($account->provider === 'facebook')
+                                <span class="font-black text-blue-600 text-xs">f</span>
+                                <span>Facebook</span>
+                                <span class="text-slate-500 font-normal">({{ $account->username }})</span>
+                                <span class="text-emerald-500 font-bold ml-0.5">✓</span>
+                            @else
+                                <span class="font-bold text-slate-700">{{ ucfirst($account->provider) }}</span>
+                                <span class="text-slate-500 font-normal">({{ $account->username }})</span>
+                                <span class="text-emerald-500 font-bold ml-0.5">✓</span>
+                            @endif
+                        </div>
+                    @empty
+                        <span class="text-xs text-slate-400 font-medium">No active channels connected.</span>
+                    @endforelse
                 </div>
             </div>
         </div>
@@ -234,15 +329,29 @@
             </div>
 
             <div class="m-cal-grid">
-                @for ($i = 1; $i <= 35; $i++)
-                    @if ($i <= 30)
+                @for ($i = 1; $i <= $gridCellsCount; $i++)
+                    @php
+                        $dayNumber = $i - $offset;
+                    @endphp
+                    @if ($i > $offset && $dayNumber <= 30)
                         @php 
-                            $dayPosts = $groupedPosts->get($i, collect()); 
+                            $dayPosts = $groupedPosts->get($dayNumber, collect()); 
                             $hasPublished = !$dayPosts->isEmpty() && $dayPosts->contains('status', 'published');
+                            $currentDate = $startDate ? $startDate->copy()->addDays($dayNumber - 1) : null;
                         @endphp
-                        <div class="m-cal-cell" onclick="openDayDrawer({{ $i }})">
-                            <div class="m-cal-date">
-                                {{ $i }}
+                        <div class="m-cal-cell" onclick="openDayDrawer({{ $dayNumber }})">
+                            <div class="m-cal-date flex items-baseline justify-between w-full">
+                                @if ($currentDate)
+                                    <div class="flex items-baseline gap-1">
+                                        <span class="text-2xl font-extrabold text-slate-900 tracking-tight leading-none">
+                                            {{ $currentDate->day }}
+                                        </span>
+                                        <span class="text-[10px] text-slate-400 font-extrabold uppercase tracking-widest">{{ $currentDate->format('M') }}</span>
+                                    </div>
+                                @else
+                                    <span class="text-2xl font-extrabold text-slate-900 tracking-tight leading-none">{{ $dayNumber }}</span>
+                                @endif
+                                
                                 @if (!$dayPosts->isEmpty())
                                     <span class="m-cal-posts-badge">{{ $dayPosts->count() }} Posts</span>
                                 @endif
@@ -325,13 +434,14 @@
 
     <!-- Hidden JSON Data for JS -->
     @php
-        $campaignDataArray = $groupedPosts->map(function($posts) {
-            return $posts->map(function($post) {
+        $userTimezone = Auth::user()->timezone ?? 'UTC';
+        $campaignDataArray = $groupedPosts->map(function($posts) use ($userTimezone) {
+            return $posts->map(function($post) use ($userTimezone) {
                 return [
                     'id' => $post->id,
                     'platform' => $post->platform,
                     'content' => $post->content,
-                    'time' => $post->scheduled_at ? \Carbon\Carbon::parse($post->scheduled_at)->format('h:i A') : 'TBD',
+                    'time' => $post->scheduled_at ? \Carbon\Carbon::parse($post->scheduled_at)->timezone($userTimezone)->format('h:i A') : 'TBD',
                 ];
             });
         });
@@ -399,9 +509,10 @@
                                         ${post.time}
                                     </span>
                                 </div>
-                                <div class="flex items-center gap-4 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                                    <button onclick="navigator.clipboard.writeText(this.closest('.group').dataset.content); const s=this; s.textContent='[ COPIED ]'; setTimeout(()=>s.textContent='[ COPY ]', 2000);" class="text-[11px] font-bold text-gray-400 hover:text-black font-mono uppercase tracking-widest transition-colors">
-                                        [ COPY ]
+                                <div class="flex items-center gap-2 transition-opacity duration-200">
+                                    <button onclick="const btn=this; navigator.clipboard.writeText(btn.closest('.group').dataset.content); const original=btn.innerHTML; btn.innerHTML='<span class=\'material-symbols-outlined text-[14px]\'>check</span><span class=\'hidden sm:inline\'>Copied</span>'; btn.classList.add('bg-green-50','text-green-700','border-green-200'); setTimeout(()=>{btn.innerHTML=original; btn.classList.remove('bg-green-50','text-green-700','border-green-200');}, 2000);" class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white border border-[#edeef1] text-[11px] font-extrabold text-[#434656] hover:bg-[#f8f9fc] hover:text-black hover:border-gray-300 hover:shadow-sm uppercase tracking-widest transition-all">
+                                        <span class="material-symbols-outlined text-[14px]">content_copy</span>
+                                        <span class="hidden sm:inline">Copy</span>
                                     </button>
                                 </div>
                             </div>

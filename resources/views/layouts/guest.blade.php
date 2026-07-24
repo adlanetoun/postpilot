@@ -6,6 +6,8 @@
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
         <title>{{ config('app.name', 'PostPilot') }}</title>
+        <link rel="icon" type="image/svg+xml" href="{{ asset('favicon.svg') }}?v=4">
+        <link rel="shortcut icon" href="{{ asset('favicon.svg') }}?v=4">
 
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])

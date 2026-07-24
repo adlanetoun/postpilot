@@ -7,26 +7,37 @@ use App\Http\Controllers\CampaignStatusController;
 use App\Http\Controllers\CampaignController;
 use App\Http\Controllers\SocialAccountController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\WaitlistController;
 use App\Http\Controllers\Webhook\DodoWebhookController;
 use Illuminate\Support\Facades\Route;
 
 // Operational Core (Dashboard) at the web root protected by auth
-Route::get('/', [DashboardController::class, 'index'])
+Route::get('/', function () {
+    return redirect()->route('dashboard');
+})->middleware(['auth', 'verified']);
+
+Route::get('/dashboard', [DashboardController::class, 'index'])
     ->middleware(['auth', 'verified'])
     ->name('dashboard');
 
 // Webhook receiver (Dodo Payments)
 Route::post('/webhooks/dodo', [DodoWebhookController::class, 'handle'])
-    ->withoutMiddleware([\Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class])
     ->middleware('throttle:60,1');
 
 // Authenticated user actions
 Route::middleware('auth')->group(function () {
-    // Projects — campaign generation is expensive, strict throttle (3 per hour in production)
-    Route::post('/projects', [ProjectController::class, 'store'])
-        ->middleware('throttle:100,1')
-        ->name('projects.store');
+    // Projects
+    Route::post('/projects', [ProjectController::class, 'store'])->name('projects.store');
+    Route::get('/projects/{project}', [ProjectController::class, 'show'])->name('projects.show');
     Route::delete('/projects/{project}', [ProjectController::class, 'destroy'])->name('projects.destroy');
+
+    // Campaigns (Creation & Library)
+    Route::post('/projects/{project}/campaigns', [CampaignController::class, 'store'])
+        ->middleware(['throttle:10,1', 'has_campaign_credits'])
+        ->name('campaigns.store');
+    Route::get('/campaigns', [CampaignController::class, 'index'])->name('campaigns.index');
+    Route::get('/campaigns/{campaign}', [CampaignController::class, 'show'])->name('campaigns.show');
+    Route::delete('/campaigns/{campaign}', [CampaignController::class, 'destroy'])->name('campaigns.destroy');
 
     // Posts — moderate throttle (30 edits per minute)
     Route::put('/posts/{post}', [PostController::class, 'update'])
@@ -36,28 +47,53 @@ Route::middleware('auth')->group(function () {
     // Campaign generation status polling endpoint
     Route::get('/campaigns/{campaign}/status', [CampaignStatusController::class, 'show'])->name('campaigns.status');
 
-    // Campaigns Library
-    Route::get('/campaigns', [CampaignController::class, 'index'])->name('campaigns.index');
-    Route::get('/campaigns/{campaign}', [CampaignController::class, 'show'])->name('campaigns.show');
-
     // Campaign Approval Action
-    Route::post('/campaigns/{campaign}/approve', [CampaignController::class, 'approve'])->name('campaigns.approve');
+    Route::post('/campaigns/{campaign}/approve', [CampaignController::class, 'approve'])
+        ->name('campaigns.approve');
+    Route::post('/campaigns/{campaign}/revoke-approval', [CampaignController::class, 'revokeApproval'])->name('campaigns.revokeApproval');
+    Route::post('/campaigns/{campaign}/toggle-pause', [CampaignController::class, 'togglePause'])->name('campaigns.togglePause');
 
+    // Social Accounts management (Project-Level) — via PostPeer
+    Route::get('/projects/{project}/socials/connect/{platform}', [\App\Http\Controllers\SocialConnectionController::class, 'connect'])
+        ->middleware('throttle:20,1')
+        ->name('social-accounts.connect');
+    Route::get('/projects/{project}/socials/connect-popup/{platform}', [\App\Http\Controllers\SocialConnectionController::class, 'connectPopup'])
+        ->middleware('throttle:20,1')
+        ->name('social-accounts.connect-popup');
+    Route::delete('/projects/{project}/socials/disconnect/{platform}', [\App\Http\Controllers\SocialConnectionController::class, 'disconnect'])
+        ->middleware('throttle:20,1')
+        ->name('social-accounts.disconnect');
+    
+    // Polling endpoint to check connection status
+    Route::get('/projects/{project}/socials/check-status', [\App\Http\Controllers\SocialConnectionController::class, 'checkStatus'])
+        ->middleware('throttle:60,1')
+        ->name('social-accounts.check-status');
+        
+    // Route to force-close popups cross-origin
+    Route::get('/social-accounts/close-popup', function() {
+        return "<script>window.close();</script>";
+    })->name('social-accounts.close-popup');
 
-    // Social Accounts management
-    Route::get('/settings/socials/connect/{platform}', [SocialAccountController::class, 'connect'])->name('social-accounts.connect');
-    Route::delete('/settings/socials/disconnect/{platform}', [SocialAccountController::class, 'disconnect'])->name('social-accounts.disconnect');
+    // Page selection flow (after PostPeer OAuth)
+    Route::get('/projects/{project}/socials/{platform}/select-page', [\App\Http\Controllers\SocialConnectionController::class, 'selectPage'])
+        ->name('social-accounts.select-page');
+    Route::post('/projects/{project}/socials/{platform}/save-page', [\App\Http\Controllers\SocialConnectionController::class, 'savePage'])
+        ->name('social-accounts.save-page');
 
 // Unified Account Management / Settings
     Route::get('/settings', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/settings', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/settings', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    // CRO: Annual Plan Waitlist Capture
+    Route::post('/waitlist/annual', [WaitlistController::class, 'store'])->name('waitlist.annual');
 });
 
-// OAuth callback — outside auth middleware to prevent session-loss redirects
-// The callback must still have web middleware for session/cookie support (Socialite needs it)
-Route::get('/settings/socials/callback/{platform}', [SocialAccountController::class, 'callback'])
-    ->name('social-accounts.callback');
+// Facebook Data Deletion
+Route::post('/settings/socials/facebook/data-deletion', [\App\Http\Controllers\FacebookDataDeletionController::class, 'handle'])
+    ->name('socials.facebook.data-deletion');
+Route::get('/settings/socials/facebook/data-deletion-status/{code}', [\App\Http\Controllers\FacebookDataDeletionController::class, 'status'])
+    ->name('socials.facebook.data-deletion-status');
 
 // Welcome / landing page for guests
 Route::get('/welcome', function () {

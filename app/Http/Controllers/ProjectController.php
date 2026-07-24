@@ -8,61 +8,87 @@ use App\Jobs\GenerateCampaignJob;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 
 class ProjectController extends Controller
 {
     /**
-     * Store a newly created project in storage and initiate campaign generation.
+     * Store a newly created project in storage.
      */
     public function store(Request $request)
     {
-        // SECURITY FIX 7-A: Subscription gate — free users limited to 1 project
         $user = $request->user();
-        $subscription = $user->subscription;
 
-        if (!$subscription || $subscription->status !== 'active') {
+        // SECURITY FIX: Prevent Race Conditions using Cache Lock
+        $lock = Cache::lock('project_create_user_' . $user->id, 10);
+        
+        try {
+            $lock->block(5);
+
+            // Project creation is free, but limited to 50 per user to prevent spam
             $existingCount = $user->projects()->count();
-            if ($existingCount >= 1) {
+            if ($existingCount >= 50) {
                 return redirect()->route('dashboard')
-                    ->with('error', 'Free accounts are limited to 1 project. Upgrade to Pro for unlimited campaigns.');
+                    ->with('error', 'You have reached the maximum limit of 50 projects.');
+            }
+
+            $validated = $request->validate([
+                'name' => [
+                    'required',
+                    'string',
+                    'max:100',
+                    function ($attribute, $value, $fail) use ($user) {
+                        if ($user->projects()->where('name', $value)->exists()) {
+                            $fail('You already have a project with this name. Please choose a unique name.');
+                        }
+                    }
+                ],
+            ]);
+
+            // Create the lightweight project wrapper
+            $project = $user->projects()->create([
+                'name' => $this->sanitizeForLlm($validated['name']),
+            ]);
+
+            // Redirect to the Project Dashboard to complete setup (connect socials)
+            return redirect()->route('projects.show', $project->id)
+                ->with('success', 'Project created! Please connect your social accounts to proceed.');
+                
+        } catch (\Illuminate\Contracts\Cache\LockTimeoutException $e) {
+            return redirect()->route('dashboard')->with('error', 'System is busy processing another request. Please try again.');
+        } finally {
+            $lock?->release();
+        }
+    }
+
+    /**
+     * Display the project dashboard (Project Setup & Campaign List).
+     */
+    public function show(Project $project)
+    {
+        Gate::authorize('view', $project);
+        
+        $project->load(['campaigns' => function($q) { $q->latest(); }, 'socialAccounts']);
+        
+        $campaign = $project->campaigns->first();
+        $connectedPlatforms = $project->socialAccounts->pluck('provider')->toArray();
+
+        $state = 'A'; // No Campaign
+        $posts = collect();
+
+        if ($campaign) {
+            if ($campaign->status === 'generating') {
+                $state = 'B';
+            } elseif ($campaign->status === 'failed_generation') {
+                $state = 'FAILED';
+            } elseif ($campaign->status === 'completed' || $campaign->status === 'active' || $campaign->status === 'paused') {
+                $state = 'C';
+                $posts = $campaign->posts;
             }
         }
-
-        $validated = $request->validate([
-            'name' => 'required|string|max:100',
-            'website_url' => 'nullable|string|max:255',
-            // HARD LIMIT: Prevents massive prompt injection payloads
-            'description' => 'required|string|max:1500', 
-            'target_audience' => 'required|string|max:255',
-            'value_proposition' => 'nullable|string|max:500',
-            'tone_of_voice' => 'nullable|string|max:255',
-            'language' => 'required|string|in:English,Arabic,French,Spanish,German',
-            'platforms' => 'required|array|min:1',
-            'platforms.*' => 'required|string|in:linkedin,twitter,facebook',
-        ]);
-
-        // SECURITY FIX 3-A: Sanitize ALL user fields against prompt injection
-        $project = $user->projects()->create([
-            'name' => $this->sanitizeForLlm($validated['name']),
-            'website_url' => $validated['website_url'] ?? null,
-            'description' => $this->sanitizeForLlm($validated['description']),
-            'target_audience' => $this->sanitizeForLlm($validated['target_audience']),
-            'value_proposition' => $this->sanitizeForLlm($validated['value_proposition'] ?? ''),
-            'tone_of_voice' => $this->sanitizeForLlm($validated['tone_of_voice'] ?? 'Professional'),
-            'language' => $validated['language'],
-            'platforms' => $validated['platforms'],
-        ]);
-
-        // Create campaign in generating status
-        $campaign = $project->campaigns()->create([
-            'status' => 'generating',
-        ]);
-
-        // Dispatch background campaign generation job
-        GenerateCampaignJob::dispatch($campaign->id);
-
-        return redirect()->route('dashboard')->with('success', 'Project created! We are generating your 30-day campaign.');
+        
+        return view('projects.show', compact('project', 'campaign', 'state', 'posts', 'connectedPlatforms'));
     }
 
     /**
@@ -70,7 +96,6 @@ class ProjectController extends Controller
      */
     public function destroy(Project $project)
     {
-        // SECURITY FIX 1-A: Use ProjectPolicy instead of manual if-check
         Gate::authorize('delete', $project);
 
         // Gather all raw LLM payload files for the project's campaigns
@@ -93,7 +118,9 @@ class ProjectController extends Controller
 
         $project->delete();
 
-        return redirect()->route('dashboard')->with('success', 'Project and all associated campaigns deleted successfully.');
+        $msg = 'Project and all associated campaigns deleted successfully.';
+
+        return redirect()->route('dashboard')->with('success', $msg);
     }
 
     /**

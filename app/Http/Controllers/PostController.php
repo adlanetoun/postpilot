@@ -18,7 +18,7 @@ class PostController extends Controller
 
         // SECURITY FIX VULN-22: Block editing posts that have already been published or are mid-publish.
         if (in_array($post->status, ['published', 'publishing'])) {
-            return redirect()->route('dashboard')
+            return back()
                 ->with('error', 'Cannot edit a post that has already been published or is currently publishing.');
         }
 
@@ -30,6 +30,8 @@ class PostController extends Controller
             'content' => $validated['content'],
         ]);
 
-        return redirect()->route('dashboard')->with('success', 'Post updated successfully.');
+        return back()
+            ->with('success', 'Post updated successfully.')
+            ->with('open_day', $post->day_number);
     }
 }

@@ -35,12 +35,33 @@ class GenerateCampaignJob implements ShouldQueue
     {
         $campaign = Campaign::with('project.user')->findOrFail($this->campaignId);
         
-        if (!empty($campaign->project->platforms)) {
-            $this->platforms = $campaign->project->platforms;
+        if (!empty($campaign->platforms)) {
+            $platforms = $campaign->platforms;
+            if (is_string($platforms)) {
+                $platforms = json_decode($platforms, true) ?? [];
+            }
+            if (is_array($platforms) && !empty($platforms)) {
+                $this->platforms = array_values($platforms);
+            }
+        }
+
+        if (!is_array($this->platforms)) {
+            $this->platforms = ['linkedin', 'twitter', 'facebook'];
         }
 
         $timezone = $campaign->project->user->timezone ?? 'UTC';
         $chunks = $this->calculateWeeklyChunks();
+
+        // REVENUE LEAK-3: Initialize expected_post_count to the total planned
+        // posts so chunk-failure handlers can decrement it for forensic
+        // under-delivery measurement (credit charged at approve() time vs.
+        // posts actually generated).
+        $totalExpected = 0;
+        $platformCount = is_array($this->platforms) ? count($this->platforms) : 1;
+        foreach ($chunks as $chunk) {
+            $totalExpected += ($chunk['end_day'] - $chunk['start_day'] + 1) * $platformCount;
+        }
+        $campaign->update(['expected_post_count' => $totalExpected]);
 
         $jobs = [];
         foreach ($chunks as $index => $chunk) {
@@ -56,14 +77,25 @@ class GenerateCampaignJob implements ShouldQueue
         }
 
         $campaignId = $this->campaignId;
-        \Illuminate\Support\Facades\Bus::batch($jobs)->then(function (\Illuminate\Bus\Batch $batch) use ($campaignId) {
+        $batch = \Illuminate\Support\Facades\Bus::batch($jobs)->then(function (\Illuminate\Bus\Batch $batch) use ($campaignId) {
             Campaign::where('id', $campaignId)->update(['status' => 'completed']);
         })->catch(function (\Illuminate\Bus\Batch $batch, \Throwable $e) use ($campaignId) {
-            Campaign::where('id', $campaignId)->update([
-                'status' => 'failed_generation',
-                'error_message' => 'A chunk failed: ' . \Illuminate\Support\Str::limit($e->getMessage(), 250)
-            ]);
-        })->dispatch();
+            $campaign = Campaign::with('project.user')->find($campaignId);
+            // SECURITY FIX: Check status before rolling back to prevent double refunds
+            if ($campaign && $campaign->status !== 'failed_generation') {
+                $campaign->update([
+                    'status' => 'failed_generation',
+                    'error_message' => 'A chunk failed: ' . \Illuminate\Support\Str::limit($e->getMessage(), 250)
+                ]);
+            }
+        });
+
+        // Add 10 seconds delay between each chunk job to prevent API rate limiting (HTTP 429)
+        foreach ($jobs as $index => $job) {
+            $job->delay(now()->addSeconds($index * 10));
+        }
+
+        $batch->dispatch();
     }
 
     private function calculateWeeklyChunks(): array
@@ -74,10 +106,11 @@ class GenerateCampaignJob implements ShouldQueue
         while ($currentDay <= $this->totalDays) {
             $endDay = min($currentDay + 6, $this->totalDays); // 7 days per chunk
             
+            $platformCount = is_array($this->platforms) ? count($this->platforms) : 1;
             $chunks[] = [
                 'start_day' => $currentDay,
                 'end_day' => $endDay,
-                'post_count' => ($endDay - $currentDay + 1) * count($this->platforms) // Max 28 posts
+                'post_count' => ($endDay - $currentDay + 1) * $platformCount // Max 28 posts
             ];
             
             $currentDay = $endDay + 1;
@@ -88,9 +121,13 @@ class GenerateCampaignJob implements ShouldQueue
 
     public function failed(Throwable $exception): void
     {
-        Campaign::where('id', $this->campaignId)->update([
-            'status' => 'failed_generation',
-            'error_message' => Str::limit($exception->getMessage(), 250),
-        ]);
+        $campaign = Campaign::with('project.user')->find($this->campaignId);
+        // SECURITY FIX: Check status before rolling back to prevent double refunds
+        if ($campaign && $campaign->status !== 'failed_generation') {
+            $campaign->update([
+                'status' => 'failed_generation',
+                'error_message' => Str::limit($exception->getMessage(), 250),
+            ]);
+        }
     }
 }

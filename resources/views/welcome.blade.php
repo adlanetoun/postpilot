@@ -5,6 +5,8 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
         <title>{{ config('app.name', 'PostPilot') }}</title>
+        <link rel="icon" type="image/svg+xml" href="{{ asset('favicon.svg') }}?v=4">
+        <link rel="shortcut icon" href="{{ asset('favicon.svg') }}?v=4">
 
         <!-- Google Fonts: Inter and Manrope -->
         <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -73,18 +75,21 @@
                     <div class="lg:col-span-6 flex flex-col items-start text-left">
                         
                         <!-- High-contrast engineering badge -->
-                        <div class="inline-flex items-center gap-2 px-2.5 py-1 rounded-md bg-gray-100 border border-gray-200 mb-8">
-                            <div class="w-1.5 h-1.5 rounded-full bg-black"></div>
-                            <span class="text-[11px] font-bold text-black tracking-widest uppercase font-mono">PostPilot Engine 2.0</span>
+                        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 mb-8">
+                            <span class="relative flex h-2 w-2">
+                                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                                <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                            </span>
+                            <span class="text-[11px] font-extrabold text-emerald-900 tracking-widest uppercase font-mono">Autopilot Marketing Engine</span>
                         </div>
 
                         <h1 class="font-extrabold text-[52px] leading-[1.05] sm:text-[64px] lg:text-[76px] text-black tracking-tighter mb-6">
-                            Month of Content.<br />
-                            <span class="text-gray-400">Zero Writing.</span>
+                            30 Days of Content.<br />
+                            <span class="text-gray-400">Published On Autopilot.</span>
                         </h1>
 
                         <p class="text-[18px] sm:text-[20px] font-medium leading-relaxed text-gray-600 mb-10 max-w-lg">
-                            Stop staring at blank pages. Input your brand brief once, and generate 30 days of platform-native posts for LinkedIn and X in seconds.
+                            Input your brand once. Our AI generates a full 30-day omnichannel strategy and automatically publishes your posts to X, LinkedIn, and Facebook on scheduled autopilot.
                         </p>
 
                         <div class="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
@@ -310,7 +315,7 @@
 
         <!-- Pricing Section (Tier-1 Editorial Brutalist) -->
         <section class="py-24 lg:py-32 bg-white border-b border-gray-200" id="pricing">
-            <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 tabs-pagedone">
+            <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                 
                 <!-- Header & Toggle -->
                 <div class="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-16 lg:mb-24">
@@ -320,115 +325,59 @@
                             <span class="text-[11px] font-bold text-gray-500 tracking-widest uppercase font-mono">Investment</span>
                         </div>
                         <h2 class="font-extrabold text-[40px] leading-[1.1] sm:text-[52px] text-black tracking-tighter">
-                            Simple pricing.<br />
-                            <span class="text-gray-400">No surprises.</span>
+                            Pay per campaign.<br />
+                            <span class="text-gray-400">No subscriptions.</span>
                         </h2>
                     </div>
 
                     <!-- Toggle (Brutalist) -->
                     <div class="flex flex-col items-end gap-3">
-                        <span class="text-[11px] font-bold text-gray-500 tracking-widest uppercase font-mono">[ SAVE 20% YEARLY ]</span>
-                        <div class="flex border-2 border-black p-1 bg-white">
-                            <a href="javascript:void(0)" class="tablink active px-6 py-2 text-[13px] font-bold tracking-wide uppercase transition-colors data-[active=true]:bg-black data-[active=true]:text-white text-gray-500 hover:text-black" data-tab="tabs-with-background-1" role="tab" onclick="document.querySelectorAll('.tablink').forEach(el=>el.setAttribute('data-active','false')); this.setAttribute('data-active','true'); document.getElementById('tabs-with-background-1').style.display='block'; document.getElementById('tabs-with-background-2').style.display='none';" data-active="true">
-                                Yearly
-                            </a>
-                            <a href="javascript:void(0)" class="tablink px-6 py-2 text-[13px] font-bold tracking-wide uppercase transition-colors data-[active=true]:bg-black data-[active=true]:text-white text-gray-500 hover:text-black" data-tab="tabs-with-background-2" role="tab" onclick="document.querySelectorAll('.tablink').forEach(el=>el.setAttribute('data-active','false')); this.setAttribute('data-active','true'); document.getElementById('tabs-with-background-1').style.display='none'; document.getElementById('tabs-with-background-2').style.display='block';" data-active="false">
-                                Monthly
-                            </a>
-                        </div>
+                        <span class="text-[11px] font-bold text-gray-500 tracking-widest uppercase font-mono">[ BUY IN BULK TO SAVE ]</span>
                     </div>
                 </div>
 
-                <!-- Yearly Tab -->
-                <div id="tabs-with-background-1" role="tabpanel" class="tabcontent block">
-                    <div class="grid grid-cols-1 lg:grid-cols-3 border-t border-l border-gray-200">
-                        <!-- Free Plan -->
-                        <div class="bg-white border-b border-r border-gray-200 p-8 lg:p-12 flex flex-col hover:bg-[#FAFAFA] transition-colors">
-                            <h3 class="text-[22px] font-extrabold text-black mb-2 tracking-tight">Free</h3>
-                            <p class="text-[13px] font-medium text-gray-500 mb-12">7 Days trial. No credit card required.</p>
-                            <div class="mb-12">
-                                <span class="text-[56px] font-extrabold text-black leading-none tracking-tighter">$0</span>
-                                <span class="text-[15px] font-medium text-gray-400 ml-2">Lifetime</span>
-                            </div>
-                            <a href="{{ route('register') }}" class="mt-auto block w-full py-4 border-2 border-black text-[13px] font-bold tracking-wide text-center text-black uppercase hover:bg-black hover:text-white transition-colors">
-                                Start Free
-                            </a>
+                <!-- Pricing Cards -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 border-t border-l border-gray-200">
+                    <!-- Starter Plan -->
+                    <div class="bg-white border-b border-r border-gray-200 p-8 lg:p-12 flex flex-col hover:bg-[#FAFAFA] transition-colors">
+                        <h3 class="text-[22px] font-extrabold text-black mb-2 tracking-tight">Starter</h3>
+                        <p class="text-[13px] font-medium text-gray-500 mb-12">1 Campaign Credit. Perfect to test the waters.</p>
+                        <div class="mb-12">
+                            <span class="text-[56px] font-extrabold text-black leading-none tracking-tighter">$9.99</span>
+                            <span class="text-[15px] font-medium text-gray-400 ml-2">/ one-time</span>
                         </div>
-                        <!-- Advanced Plan -->
-                        <div class="bg-black border-b border-r border-black p-8 lg:p-12 flex flex-col relative transform lg:scale-105 z-10 shadow-2xl">
-                            <div class="absolute top-0 right-8 transform -translate-y-1/2 bg-white px-3 py-1 border-2 border-black">
-                                <span class="text-[10px] font-bold text-black uppercase tracking-widest">Popular</span>
-                            </div>
-                            <h3 class="text-[22px] font-extrabold text-white mb-2 tracking-tight">Advanced</h3>
-                            <p class="text-[13px] font-medium text-gray-400 mb-12">Full automation suite for professionals.</p>
-                            <div class="mb-12">
-                                <span class="text-[56px] font-extrabold text-white leading-none tracking-tighter">$150</span>
-                                <span class="text-[15px] font-medium text-gray-400 ml-2">Per year</span>
-                            </div>
-                            <a href="{{ route('register') }}" class="mt-auto block w-full py-4 bg-white border-2 border-white text-[13px] font-bold tracking-wide text-center text-black uppercase hover:bg-gray-200 transition-colors">
-                                Purchase Plan
-                            </a>
+                        <a href="{{ auth()->check() ? url('/settings?tab=billing') : route('register') }}" class="mt-auto block w-full py-4 border-2 border-black text-[13px] font-bold tracking-wide text-center text-black uppercase hover:bg-black hover:text-white transition-colors">
+                            Buy Credit
+                        </a>
+                    </div>
+                    <!-- Pro Plan -->
+                    <div class="bg-black border-b border-r border-black p-8 lg:p-12 flex flex-col relative transform lg:scale-105 z-10 shadow-2xl">
+                        <div class="absolute top-0 right-8 transform -translate-y-1/2 bg-white px-3 py-1 border-2 border-black">
+                            <span class="text-[10px] font-bold text-black uppercase tracking-widest">Popular</span>
                         </div>
-                        <!-- Team Plan -->
-                        <div class="bg-white border-b border-r border-gray-200 p-8 lg:p-12 flex flex-col hover:bg-[#FAFAFA] transition-colors">
-                            <h3 class="text-[22px] font-extrabold text-black mb-2 tracking-tight">Team</h3>
-                            <p class="text-[13px] font-medium text-gray-500 mb-12">Collaboration features for agencies.</p>
-                            <div class="mb-12">
-                                <span class="text-[56px] font-extrabold text-black leading-none tracking-tighter">$180</span>
-                                <span class="text-[15px] font-medium text-gray-400 ml-2">Per year</span>
-                            </div>
-                            <a href="{{ route('register') }}" class="mt-auto block w-full py-4 border-2 border-black text-[13px] font-bold tracking-wide text-center text-black uppercase hover:bg-black hover:text-white transition-colors">
-                                Purchase Plan
-                            </a>
+                        <h3 class="text-[22px] font-extrabold text-white mb-2 tracking-tight">Pro</h3>
+                        <p class="text-[13px] font-medium text-gray-400 mb-12">3 Campaign Credits. Full automation suite for professionals.</p>
+                        <div class="mb-12">
+                            <span class="text-[56px] font-extrabold text-white leading-none tracking-tighter">$25.99</span>
+                            <span class="text-[15px] font-medium text-gray-400 ml-2">/ one-time</span>
                         </div>
+                        <a href="{{ auth()->check() ? url('/settings?tab=billing') : route('register') }}" class="mt-auto block w-full py-4 bg-white border-2 border-white text-[13px] font-bold tracking-wide text-center text-black uppercase hover:bg-gray-200 transition-colors">
+                            Buy Credits
+                        </a>
+                    </div>
+                    <!-- Agency Plan -->
+                    <div class="bg-white border-b border-r border-gray-200 p-8 lg:p-12 flex flex-col hover:bg-[#FAFAFA] transition-colors">
+                        <h3 class="text-[22px] font-extrabold text-black mb-2 tracking-tight">Agency</h3>
+                        <p class="text-[13px] font-medium text-gray-500 mb-12">10 Campaign Credits. Maximum value for heavy users.</p>
+                        <div class="mb-12">
+                            <span class="text-[56px] font-extrabold text-black leading-none tracking-tighter">$69.99</span>
+                            <span class="text-[15px] font-medium text-gray-400 ml-2">/ one-time</span>
+                        </div>
+                        <a href="{{ auth()->check() ? url('/settings?tab=billing') : route('register') }}" class="mt-auto block w-full py-4 border-2 border-black text-[13px] font-bold tracking-wide text-center text-black uppercase hover:bg-black hover:text-white transition-colors">
+                            Buy Credits
+                        </a>
                     </div>
                 </div>
-
-                <!-- Monthly Tab -->
-                <div id="tabs-with-background-2" role="tabpanel" class="tabcontent hidden">
-                    <div class="grid grid-cols-1 lg:grid-cols-3 border-t border-l border-gray-200">
-                        <!-- Free Plan -->
-                        <div class="bg-white border-b border-r border-gray-200 p-8 lg:p-12 flex flex-col hover:bg-[#FAFAFA] transition-colors">
-                            <h3 class="text-[22px] font-extrabold text-black mb-2 tracking-tight">Free</h3>
-                            <p class="text-[13px] font-medium text-gray-500 mb-12">7 Days trial. No credit card required.</p>
-                            <div class="mb-12">
-                                <span class="text-[56px] font-extrabold text-black leading-none tracking-tighter">$0</span>
-                                <span class="text-[15px] font-medium text-gray-400 ml-2">Lifetime</span>
-                            </div>
-                            <a href="{{ route('register') }}" class="mt-auto block w-full py-4 border-2 border-black text-[13px] font-bold tracking-wide text-center text-black uppercase hover:bg-black hover:text-white transition-colors">
-                                Start Free
-                            </a>
-                        </div>
-                        <!-- Advanced Plan -->
-                        <div class="bg-black border-b border-r border-black p-8 lg:p-12 flex flex-col relative transform lg:scale-105 z-10 shadow-2xl">
-                            <div class="absolute top-0 right-8 transform -translate-y-1/2 bg-white px-3 py-1 border-2 border-black">
-                                <span class="text-[10px] font-bold text-black uppercase tracking-widest">Popular</span>
-                            </div>
-                            <h3 class="text-[22px] font-extrabold text-white mb-2 tracking-tight">Advanced</h3>
-                            <p class="text-[13px] font-medium text-gray-400 mb-12">Full automation suite for professionals.</p>
-                            <div class="mb-12">
-                                <span class="text-[56px] font-extrabold text-white leading-none tracking-tighter">$39</span>
-                                <span class="text-[15px] font-medium text-gray-400 ml-2">Per Month</span>
-                            </div>
-                            <a href="{{ route('register') }}" class="mt-auto block w-full py-4 bg-white border-2 border-white text-[13px] font-bold tracking-wide text-center text-black uppercase hover:bg-gray-200 transition-colors">
-                                Purchase Plan
-                            </a>
-                        </div>
-                        <!-- Team Plan -->
-                        <div class="bg-white border-b border-r border-gray-200 p-8 lg:p-12 flex flex-col hover:bg-[#FAFAFA] transition-colors">
-                            <h3 class="text-[22px] font-extrabold text-black mb-2 tracking-tight">Team</h3>
-                            <p class="text-[13px] font-medium text-gray-500 mb-12">Collaboration features for agencies.</p>
-                            <div class="mb-12">
-                                <span class="text-[56px] font-extrabold text-black leading-none tracking-tighter">$49</span>
-                                <span class="text-[15px] font-medium text-gray-400 ml-2">Per Month</span>
-                            </div>
-                            <a href="{{ route('register') }}" class="mt-auto block w-full py-4 border-2 border-black text-[13px] font-bold tracking-wide text-center text-black uppercase hover:bg-black hover:text-white transition-colors">
-                                Purchase Plan
-                            </a>
-                        </div>
-                    </div>
-                </div>
-
             </div>
         </section>
 
@@ -479,7 +428,7 @@
                                 <span class="text-[20px] font-mono font-bold text-gray-400 hidden group-open:block">[-]</span>
                             </summary>
                             <div class="pb-8 pl-[46px] pr-8 text-[16px] font-medium text-gray-600 leading-relaxed max-w-2xl animate-[fadeIn_0.2s_ease-out]">
-                                No, all AI generation costs are included in your subscription. You don't need to bring your own API key or worry about token limits.
+                                No, all AI generation costs are included when you spend a Campaign Credit. You don't need to bring your own API key or worry about token limits.
                             </div>
                         </details>
 
@@ -503,13 +452,13 @@
                             <summary class="flex items-center justify-between cursor-pointer py-8 list-none marker:hidden hover:text-gray-600 transition-colors">
                                 <div class="flex items-start gap-6">
                                     <span class="text-[18px] font-mono font-bold text-gray-400 mt-1">04</span>
-                                    <h4 class="text-[22px] sm:text-[28px] font-extrabold text-black tracking-tight group-hover:text-gray-600">Can I cancel my subscription anytime?</h4>
+                                    <h4 class="text-[22px] sm:text-[28px] font-extrabold text-black tracking-tight group-hover:text-gray-600">Do Campaign Credits expire?</h4>
                                 </div>
                                 <span class="text-[20px] font-mono font-bold text-gray-400 group-open:hidden">[+]</span>
                                 <span class="text-[20px] font-mono font-bold text-gray-400 hidden group-open:block">[-]</span>
                             </summary>
                             <div class="pb-8 pl-[46px] pr-8 text-[16px] font-medium text-gray-600 leading-relaxed max-w-2xl animate-[fadeIn_0.2s_ease-out]">
-                                Yes, you can cancel your subscription at any time from your account settings. There are no long-term contracts or cancellation fees.
+                                No, your Campaign Credits never expire. You can purchase them in bulk to save money and use them whenever you are ready to launch a new project.
                             </div>
                         </details>
 

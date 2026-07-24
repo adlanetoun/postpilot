@@ -13,8 +13,20 @@ class Campaign extends Model
     protected $fillable = [
         'project_id',
         'status',
+        'description',
+        'target_audience',
+        'value_proposition',
+        'tone_of_voice',
+        'language',
+        'platforms',
+        'is_demo',
         'raw_llm_payload_path',
         'error_message',
+    ];
+
+    protected $casts = [
+        'platforms' => 'array',
+        'is_demo' => 'boolean',
     ];
 
     public function posts()

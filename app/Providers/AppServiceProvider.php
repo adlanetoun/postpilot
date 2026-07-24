@@ -19,6 +19,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+if (request()->server('HTTP_X_FORWARDED_PROTO') === 'https' || str_contains(config('app.url'), 'https://')) {
+    \Illuminate\Support\Facades\URL::forceScheme('https');
+}
+
         // SECURITY FIX 5-A: Apply SQLite PRAGMAs to BOTH main and queue connections
         foreach (['sqlite', 'sqlite_queue'] as $connection) {
             try {
@@ -40,5 +44,18 @@ class AppServiceProvider extends ServiceProvider
             }
         }
 
+        // Override the default Socialite twitter-oauth-2 provider with our custom one
+        \Laravel\Socialite\Facades\Socialite::extend('twitter-oauth-2', function ($app) {
+            $config = $app['config']['services.twitter-oauth-2'];
+            return \Laravel\Socialite\Facades\Socialite::buildProvider(\App\Providers\CustomTwitterProvider::class, $config);
+        });
+
+        // FREE-TIER ROUTING: Demo mode is now decided per-request by the chunk job
+        // based on the user's remaining credits, not globally. The job resolves
+        // StubOpenAIService directly when the user has no credits left, and
+        // posts are tagged with is_demo=true to block publishing.
+        //
+        // The openai.demo_mode config still works for landing-page preview CTAs
+        // and PHPUnit tests where no user context exists.
     }
 }

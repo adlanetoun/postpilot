@@ -14,6 +14,7 @@ class Post extends Model
         'campaign_id',
         'social_account_id',
         'platform',
+        'is_demo',
         'content',
         'status',
         'day_number',
@@ -26,6 +27,7 @@ class Post extends Model
     protected $casts = [
         'scheduled_at' => 'datetime:Y-m-d H:i:s',
         'published_at' => 'datetime',
+        'is_demo' => 'boolean',
     ];
 
     public function campaign()

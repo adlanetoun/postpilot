@@ -12,7 +12,16 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        //
+        $middleware->trustProxies(at: '*');
+
+        $middleware->validateCsrfTokens(except: [
+            'settings/socials/facebook/data-deletion',
+            'webhooks/dodo',
+        ]);
+        
+        $middleware->alias([
+            'has_campaign_credits' => \App\Http\Middleware\EnsureHasCampaignCredits::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(

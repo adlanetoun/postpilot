@@ -36,8 +36,16 @@ return [
     ],
 
     'dodo' => [
+        'mode' => env('DODO_MODE', 'test'),
         'webhook_secret' => env('DODO_WEBHOOK_SECRET'),
         'api_key' => env('DODO_API_KEY'),
+        'link_1_campaign' => env('DODO_LINK_1_CAMPAIGN'),
+        'link_3_campaigns' => env('DODO_LINK_3_CAMPAIGNS'),
+        'link_10_campaigns' => env('DODO_LINK_10_CAMPAIGNS'),
+        'link_starter_campaign' => env('DODO_LINK_STARTER_CAMPAIGN'),
+        'link_pro_campaign' => env('DODO_LINK_PRO_CAMPAIGN'),
+        'link_business_campaign' => env('DODO_LINK_BUSINESS_CAMPAIGN'),
+        'link_agency_pro_campaign' => env('DODO_LINK_AGENCY_PRO_CAMPAIGN'),
     ],
 
     'cerebras' => [
@@ -45,40 +53,10 @@ return [
         'base_url' => env('CEREBRAS_BASE_URL', 'https://api.cerebras.ai/v1'),
     ],
 
-    'linkedin' => [
-        'client_id' => env('LINKEDIN_CLIENT_ID'),
-        'client_secret' => env('LINKEDIN_CLIENT_SECRET'),
-        'redirect' => env('LINKEDIN_REDIRECT_URI', 'http://127.0.0.1:8000/settings/socials/callback/linkedin'),
-        'guzzle' => [
-            'verify' => file_exists(base_path('storage/cacert.pem')) ? base_path('storage/cacert.pem') : true,
-        ],
-    ],
-
-    'twitter' => [
-        'client_id' => env('TWITTER_CLIENT_ID'),
-        'client_secret' => env('TWITTER_CLIENT_SECRET'),
-        'redirect' => env('TWITTER_REDIRECT_URI', 'http://127.0.0.1:8000/settings/socials/callback/twitter'),
-        'guzzle' => [
-            'verify' => file_exists(base_path('storage/cacert.pem')) ? base_path('storage/cacert.pem') : true,
-        ],
-    ],
-
-    'twitter-oauth-2' => [
-        'client_id' => env('TWITTER_CLIENT_ID'),
-        'client_secret' => env('TWITTER_CLIENT_SECRET'),
-        'redirect' => env('TWITTER_REDIRECT_URI', 'http://127.0.0.1:8000/settings/socials/callback/twitter'),
-        'guzzle' => [
-            'verify' => file_exists(base_path('storage/cacert.pem')) ? base_path('storage/cacert.pem') : true,
-        ],
-    ],
-
-    'facebook' => [
-        'client_id' => env('FACEBOOK_CLIENT_ID'),
-        'client_secret' => env('FACEBOOK_CLIENT_SECRET'),
-        'redirect' => env('FACEBOOK_REDIRECT_URI', 'http://127.0.0.1:8000/settings/socials/callback/facebook'),
-        'guzzle' => [
-            'verify' => file_exists(base_path('storage/cacert.pem')) ? base_path('storage/cacert.pem') : true,
-        ],
+    // PostPeer Unified Social Media API
+    'postpeer' => [
+        'key' => env('POSTPEER_API_KEY'),
+        'base_url' => env('POSTPEER_BASE_URL', 'https://api.postpeer.dev/v1'),
     ],
 
 ];

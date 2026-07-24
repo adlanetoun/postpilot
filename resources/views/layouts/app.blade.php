@@ -6,22 +6,37 @@
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
         <title>{{ config('app.name', 'PostPilot') }}</title>
+        <link rel="icon" type="image/svg+xml" href="{{ asset('favicon.svg') }}?v=4">
+        <link rel="shortcut icon" href="{{ asset('favicon.svg') }}?v=4">
 
+        <!-- Global Premium Fonts & Styles -->
+        <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Outfit:wght@300;400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+        <style>
+            .mesh-gradient {
+                background: radial-gradient(at 0% 0%, #ffffff 0%, transparent 60%),
+                            radial-gradient(at 100% 0%, #f1f5f9 0%, transparent 60%),
+                            radial-gradient(at 100% 100%, #e2e8f0 0%, transparent 60%),
+                            radial-gradient(at 0% 100%, #f8fafc 0%, transparent 60%);
+                background-color: #f8fafc;
+                background-attachment: fixed;
+            }
+            .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        </style>
+        
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
-    <body class="font-inter antialiased text-[#111827] bg-[#FAFAFA] min-h-screen relative">
-        <!-- Removed generic grid background to ensure absolute cleanliness (Vercel/Linear aesthetic) -->
-
+    <body class="font-inter bg-white text-gray-900 min-h-screen overflow-x-hidden relative selection:bg-black selection:text-white">
         <div class="flex h-screen overflow-hidden relative z-10">
             <!-- Sidebar -->
             @include('layouts.sidebar')
 
             <!-- Main Content Area -->
-            <div class="flex-1 flex flex-col h-screen overflow-y-auto">
+            <div class="flex-1 flex flex-col h-screen overflow-y-auto bg-white">
                 <!-- Page Heading (Contextual Command Header) -->
                 @isset($header)
-                    <header class="bg-white/80 backdrop-blur-md border-b border-[#E5E7EB] shrink-0 sticky top-0 z-40 transition-all">
+                    <header class="bg-white border-b border-gray-200 shrink-0 sticky top-0 z-40">
                         <div class="px-6 lg:px-8 h-14 flex items-center justify-between w-full">
                             {{ $header }}
                         </div>
@@ -48,6 +63,12 @@
         <x-toast type="error" />
         <x-toast type="warning" />
         <x-toast type="info" />
+
+        {{-- CRO: In-app insufficient credits modal (replaces redirect-to-billing) --}}
+        @if (session('insufficient_credits'))
+            <x-insufficient-credits-modal />
+        @endif
+
     </body>
 </html>
 

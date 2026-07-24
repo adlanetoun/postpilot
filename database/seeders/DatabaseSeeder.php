@@ -15,11 +15,31 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
-
+        // 1. Free User (No Credits)
         User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
+            'name' => 'Free User',
+            'email' => 'free@example.com',
+            'campaign_credits' => 0,
+            'is_admin' => false,
+            'password' => bcrypt('password'),
+        ]);
+
+        // 2. Pro User (With Credits)
+        User::factory()->create([
+            'name' => 'Pro User',
+            'email' => 'pro@example.com',
+            'campaign_credits' => 10,
+            'is_admin' => false,
+            'password' => bcrypt('password'),
+        ]);
+
+        // 3. Admin User (Access to Filament)
+        User::factory()->create([
+            'name' => 'Admin User',
+            'email' => 'admin@example.com',
+            'campaign_credits' => 100,
+            'is_admin' => true,
+            'password' => bcrypt('password'),
         ]);
     }
 }

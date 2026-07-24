@@ -6,6 +6,8 @@
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
         <title>{{ config('app.name', 'PostPilot') }} - Register</title>
+        <link rel="icon" type="image/svg+xml" href="{{ asset('favicon.svg') }}?v=4">
+        <link rel="shortcut icon" href="{{ asset('favicon.svg') }}?v=4">
 
         <!-- Google Fonts: Inter and Manrope -->
         <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -41,8 +43,8 @@
                             <span class="text-[10px] font-bold text-white tracking-widest uppercase font-mono">Engine 2.0</span>
                         </div>
                         <h2 class="font-extrabold text-[44px] leading-[1.05] text-white tracking-tighter">
-                            Month of Content.<br />
-                            <span class="text-zinc-500">Zero Writing.</span>
+                            30 Days of Content.<br />
+                            <span class="text-zinc-500">Published On Autopilot.</span>
                         </h2>
                         <p class="text-zinc-400 text-sm font-medium leading-relaxed">
                             Input your brief once. PostPilot generates, formats, and schedules a full month of platform-native posts for LinkedIn and X.

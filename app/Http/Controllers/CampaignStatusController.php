@@ -26,7 +26,7 @@ class CampaignStatusController extends Controller
 
         return response()->json([
             'status' => $status,
-            'failure_reason' => $campaign->failure_reason,
+            'failure_reason' => $campaign->error_message,
         ]);
     }
 }

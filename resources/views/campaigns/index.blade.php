@@ -258,7 +258,7 @@
 
     <div class="maestro-wrapper">
         <div class="maestro-hero">
-            <h1>{{ __('My Campaigns') }}</h1>
+            <h1>{{ __('Campaign Library') }}</h1>
             <a href="{{ route('dashboard', ['new' => 1]) }}" class="maestro-hero-btn">
                 Create Campaign
             </a>
@@ -270,7 +270,7 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
                 </svg>
                 <h3 class="m-empty-title">No Campaigns Found</h3>
-                <p class="m-empty-desc">You haven't generated any campaigns yet. Head over to the dashboard to start your first 30-day strategy.</p>
+                <p class="m-empty-desc">You haven't generated any content campaigns yet. Head over to the dashboard to start your first 30-day strategy.</p>
                 <a href="{{ route('dashboard', ['new' => 1]) }}" class="maestro-hero-btn" style="background: transparent; color: #000; border: 2px solid #000; box-shadow: none;">
                     Create Campaign
                 </a>
