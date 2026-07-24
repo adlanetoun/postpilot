@@ -1,1 +1,1 @@
-web: php -r "file_exists('database/database.sqlite') || touch('database/database.sqlite'); file_exists('database/database_queue.sqlite') || touch('database/database_queue.sqlite');" && php artisan migrate --force && php artisan serve --host 0.0.0.0 --port $PORT
+web: php -r "@mkdir('/app/database', 0777, true); touch('/app/database/database.sqlite'); touch('/app/database/database_queue.sqlite');" && php artisan migrate --force && php artisan serve --host 0.0.0.0 --port $PORT
