@@ -17,6 +17,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->validateCsrfTokens(except: [
             'settings/socials/facebook/data-deletion',
             'webhooks/dodo',
+            'webhooks/paddle',
         ]);
         
         $middleware->alias([
