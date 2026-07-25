@@ -13,13 +13,12 @@ return new class extends Migration
     {
         Schema::create('subscriptions', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
-            $table->string('dodo_subscription_id')->unique();
-            $table->string('dodo_customer_id');
-            $table->string('dodo_product_id')->nullable();
-            $table->string('plan_name');
-            $table->string('status')->default('active'); // active, past_due, canceled
+            $table->morphs('billable');
+            $table->string('type');
+            $table->string('paddle_id')->unique();
+            $table->string('status');
             $table->timestamp('trial_ends_at')->nullable();
+            $table->timestamp('paused_at')->nullable();
             $table->timestamp('ends_at')->nullable();
             $table->timestamps();
         });
