@@ -41,10 +41,10 @@
                     <li class="flex items-start gap-1.5"><span class="text-emerald-500 mt-0.5">✓</span> 1 full 30-day campaign</li>
                     <li class="flex items-start gap-1.5"><span class="text-emerald-500 mt-0.5">✓</span> 3 platforms max</li>
                 </ul>
-                <a href="https://{{ config('services.dodo.mode') === 'test' ? 'test.checkout.dodopayments.com' : 'checkout.dodopayments.com' }}/buy/{{ config('services.dodo.link_1_campaign') }}?email={{ urlencode(Auth::user()->email) }}&redirect_url={{ urlencode(route('profile.edit', ['tab' => 'billing'])) }}"
-                   class="inline-flex items-center justify-center gap-2 w-full px-5 py-3 text-[15px] font-semibold text-white bg-indigo-600 rounded-xl hover:bg-indigo-700 transition-all shadow-sm">
+                <button type="button" onclick="openPaddleCheckout('{{ config('services.paddle.price_1_campaign') }}', 1)"
+                   class="inline-flex items-center justify-center gap-2 w-full px-5 py-3 text-[15px] font-semibold text-white bg-indigo-600 rounded-xl hover:bg-indigo-700 transition-all shadow-sm cursor-pointer">
                     Buy 1 Credit
-                </a>
+                </button>
             </div>
 
             <!-- 3 Credits (Popular) -->
@@ -57,10 +57,10 @@
                     <li class="flex items-start gap-1.5"><span class="text-[#8ca8ff] mt-0.5">✓</span> 3 full campaigns</li>
                     <li class="flex items-start gap-1.5"><span class="text-[#8ca8ff] mt-0.5">✓</span> Perfect for multi-project</li>
                 </ul>
-                <a href="https://{{ config('services.dodo.mode') === 'test' ? 'test.checkout.dodopayments.com' : 'checkout.dodopayments.com' }}/buy/{{ config('services.dodo.link_3_campaigns') }}?email={{ urlencode(Auth::user()->email) }}&redirect_url={{ urlencode(route('profile.edit', ['tab' => 'billing'])) }}"
-                   class="w-full py-3 bg-gradient-to-r from-[#0040e0] to-[#0030a8] hover:shadow-[0_10px_25px_-5px_rgba(0,64,224,0.6)] text-white text-[11px] font-extrabold uppercase tracking-widest rounded-xl transition-all duration-300 text-center">
+                <button type="button" onclick="openPaddleCheckout('{{ config('services.paddle.price_3_campaigns') }}', 3)"
+                   class="w-full py-3 bg-gradient-to-r from-[#0040e0] to-[#0030a8] hover:shadow-[0_10px_25px_-5px_rgba(0,64,224,0.6)] text-white text-[11px] font-extrabold uppercase tracking-widest rounded-xl transition-all duration-300 text-center cursor-pointer">
                     Get 3 Credits
-                </a>
+                </button>
             </div>
 
             <!-- 10 Credits -->
@@ -72,10 +72,10 @@
                     <li class="flex items-start gap-1.5"><span class="text-emerald-500 mt-0.5">✓</span> 10 full campaigns</li>
                     <li class="flex items-start gap-1.5"><span class="text-emerald-500 mt-0.5">✓</span> For agencies & heavy users</li>
                 </ul>
-                <a href="https://{{ config('services.dodo.mode') === 'test' ? 'test.checkout.dodopayments.com' : 'checkout.dodopayments.com' }}/buy/{{ config('services.dodo.link_10_campaigns') }}?email={{ urlencode(Auth::user()->email) }}&redirect_url={{ urlencode(route('profile.edit', ['tab' => 'billing'])) }}"
-                   class="inline-flex items-center justify-center gap-2 w-full px-5 py-3 text-[15px] font-semibold text-white bg-slate-900 rounded-xl hover:bg-black transition-all shadow-sm">
+                <button type="button" onclick="openPaddleCheckout('{{ config('services.paddle.price_10_campaigns') }}', 10)"
+                   class="inline-flex items-center justify-center gap-2 w-full px-5 py-3 text-[15px] font-semibold text-white bg-slate-900 rounded-xl hover:bg-black transition-all shadow-sm cursor-pointer">
                     Buy 10 Credits
-                </a>
+                </button>
             </div>
         </div>
 
@@ -83,7 +83,7 @@
         <div class="px-6 sm:px-8 py-5 border-t border-[#edeef1] flex flex-col sm:flex-row items-center justify-between gap-3 bg-[#f8f9fc]/60">
             <div class="flex items-center gap-2 text-[12px] font-medium text-[#434656]">
                 <span class="material-symbols-outlined text-[#0040e0] text-[18px]">verified_user</span>
-                <span>Secure checkout by Dodo Payments · Credits never expire</span>
+                <span>Secure checkout by Paddle · Credits never expire</span>
             </div>
             <button type="button" class="text-[12px] font-extrabold text-[#434656] hover:text-[#191c1e] uppercase tracking-widest px-4 py-2 rounded-xl hover:bg-white transition-all cursor-pointer" onclick="document.getElementById('insufficient-credits-modal').close()">
                 Maybe Later

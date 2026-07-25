@@ -1631,10 +1631,10 @@
                                     <li>All 3 platforms</li>
                                     <li>Auto-publishing</li>
                                 </ul>
-                                <a href="https://{{ config('services.dodo.mode') === 'test' ? 'test.checkout.dodopayments.com' : 'checkout.dodopayments.com' }}/buy/{{ config('services.dodo.link_1_campaign') }}?email={{ urlencode(Auth::user()->email) }}&redirect_url={{ urlencode(route('profile.edit', ['tab' => 'billing'])) }}" class="pack-btn">
+                                <button type="button" onclick="openPaddleCheckout('{{ config('services.paddle.price_1_campaign') }}', 1)" class="pack-btn cursor-pointer">
                                     Get Started
                                     <span class="pack-btn-sub">Instant access</span>
-                                </a>
+                                </button>
                             </div>
 
                             {{-- PRO (Most Popular) --}}
@@ -1662,10 +1662,10 @@
                                     <li>Priority AI processing</li>
                                     <li>Advanced analytics</li>
                                 </ul>
-                                <a href="https://{{ config('services.dodo.mode') === 'test' ? 'test.checkout.dodopayments.com' : 'checkout.dodopayments.com' }}/buy/{{ config('services.dodo.link_3_campaigns') }}?email={{ urlencode(Auth::user()->email) }}&redirect_url={{ urlencode(route('profile.edit', ['tab' => 'billing'])) }}" class="pack-btn">
+                                <button type="button" onclick="openPaddleCheckout('{{ config('services.paddle.price_3_campaigns') }}', 3)" class="pack-btn cursor-pointer">
                                     Go Pro Now
                                     <span class="pack-btn-sub">Unlock 3 campaigns</span>
-                                </a>
+                                </button>
                             </div>
 
                             {{-- AGENCY --}}
@@ -1694,10 +1694,10 @@
                                     <li>Dedicated support</li>
                                     <li>Early access to features</li>
                                 </ul>
-                                <a href="https://{{ config('services.dodo.mode') === 'test' ? 'test.checkout.dodopayments.com' : 'checkout.dodopayments.com' }}/buy/{{ config('services.dodo.link_10_campaigns') }}?email={{ urlencode(Auth::user()->email) }}&redirect_url={{ urlencode(route('profile.edit', ['tab' => 'billing'])) }}" class="pack-btn">
+                                <button type="button" onclick="openPaddleCheckout('{{ config('services.paddle.price_10_campaigns') }}', 10)" class="pack-btn cursor-pointer">
                                     Get Agency Access
                                     <span class="pack-btn-sub">Maximum value</span>
-                                </a>
+                                </button>
                             </div>
                         </div>
 
@@ -1709,7 +1709,7 @@
                             </div>
                             <div class="trust-badge">
                                 <div class="trust-icon">💳</div>
-                                <div class="trust-text">Dodo Payments<small>PCI-DSS compliant</small></div>
+                                <div class="trust-text">Paddle Merchant of Record<small>PCI-DSS compliant</small></div>
                             </div>
                             <div class="trust-badge">
                                 <div class="trust-icon">⚡</div>

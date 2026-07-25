@@ -26,6 +26,34 @@
         
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
+
+        <!-- Paddle V2 SDK -->
+        <script src="https://cdn.paddle.com/paddle/v2/paddle.js"></script>
+        <script>
+            @if(config('services.paddle.client_side_token'))
+                Paddle.Initialize({
+                    token: "{{ config('services.paddle.client_side_token') }}",
+                    environment: "{{ config('services.paddle.mode') === 'live' ? 'production' : 'sandbox' }}"
+                });
+            @endif
+
+            function openPaddleCheckout(priceId, creditsAmount) {
+                if (typeof Paddle !== 'undefined' && priceId) {
+                    Paddle.Checkout.open({
+                        items: [{ priceId: priceId, quantity: 1 }],
+                        customData: {
+                            user_id: {{ Auth::id() ?? 'null' }},
+                            credits: creditsAmount
+                        },
+                        customer: {
+                            email: "{{ Auth::user()->email ?? '' }}"
+                        }
+                    });
+                } else {
+                    console.warn('Paddle is not initialized or price ID is missing.');
+                }
+            }
+        </script>
     </head>
     <body class="font-inter bg-white text-gray-900 min-h-screen overflow-x-hidden relative selection:bg-black selection:text-white">
         <div class="flex h-screen overflow-hidden relative z-10">

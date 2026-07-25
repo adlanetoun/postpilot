@@ -59,4 +59,14 @@ return [
         'base_url' => env('POSTPEER_BASE_URL', 'https://api.postpeer.dev/v1'),
     ],
 
+    'paddle' => [
+        'mode' => env('PADDLE_MODE', 'sandbox'),
+        'client_side_token' => env('PADDLE_CLIENT_SIDE_TOKEN'),
+        'api_key' => env('PADDLE_API_KEY'),
+        'webhook_secret' => env('PADDLE_WEBHOOK_SECRET'),
+        'price_1_campaign' => env('PADDLE_PRICE_1_CAMPAIGN'),
+        'price_3_campaigns' => env('PADDLE_PRICE_3_CAMPAIGNS'),
+        'price_10_campaigns' => env('PADDLE_PRICE_10_CAMPAIGNS'),
+    ],
+
 ];

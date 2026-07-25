@@ -9,6 +9,7 @@ use App\Http\Controllers\SocialAccountController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\WaitlistController;
 use App\Http\Controllers\Webhook\DodoWebhookController;
+use App\Http\Controllers\Webhook\PaddleWebhookController;
 use Illuminate\Support\Facades\Route;
 
 // Operational Core (Dashboard) at the web root protected by auth
@@ -20,8 +21,10 @@ Route::get('/dashboard', [DashboardController::class, 'index'])
     ->middleware(['auth', 'verified'])
     ->name('dashboard');
 
-// Webhook receiver (Dodo Payments)
+// Webhook receivers
 Route::post('/webhooks/dodo', [DodoWebhookController::class, 'handle'])
+    ->middleware('throttle:60,1');
+Route::post('/webhooks/paddle', [PaddleWebhookController::class, 'handle'])
     ->middleware('throttle:60,1');
 
 // Authenticated user actions
