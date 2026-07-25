@@ -173,4 +173,12 @@ class CreditLedgerService
 
         return $stats;
     }
+
+    /**
+     * Grant credits helper method that delegates to User model's addCampaignCredits.
+     */
+    public function grantCredits(User $user, int $amount, string $type = 'purchase', string $description = 'Credits granted', ?string $referenceId = null, ?string $referenceType = null): void
+    {
+        $user->addCampaignCredits($amount, $type, $description, $referenceId, $referenceType);
+    }
 }
