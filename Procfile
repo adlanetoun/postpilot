@@ -1,1 +1,1 @@
-web: php -r "@mkdir('/app/database', 0777, true); touch('/app/database/database.sqlite'); touch('/app/database/database_queue.sqlite');" && php artisan migrate --force && php artisan serve --host 0.0.0.0 --port $PORT
+web: php -r "@mkdir('/app/database', 0777, true); touch('/app/database/database.sqlite'); touch('/app/database/database_queue.sqlite');" && php artisan migrate --force && php artisan config:clear && php artisan view:clear && php artisan serve --host 0.0.0.0 --port $PORT
