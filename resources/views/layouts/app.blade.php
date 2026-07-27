@@ -49,6 +49,13 @@
                         },
                         customer: {
                             email: "{{ Auth::user()->email ?? '' }}"
+                        },
+                        eventCallback: function(data) {
+                            if (data.name === 'checkout.completed' || data.event === 'checkout.completed') {
+                                setTimeout(function() {
+                                    window.location.reload();
+                                }, 1200);
+                            }
                         }
                     });
                 } else {
