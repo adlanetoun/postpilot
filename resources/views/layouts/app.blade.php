@@ -35,7 +35,14 @@
                     Paddle.Environment.set('sandbox');
                 @endif
                 Paddle.Initialize({
-                    token: "{{ config('services.paddle.client_side_token') }}"
+                    token: "{{ config('services.paddle.client_side_token') }}",
+                    eventCallback: function(event) {
+                        if (event && (event.name === 'checkout.completed' || event.event === 'checkout.completed')) {
+                            setTimeout(function() {
+                                window.location.reload();
+                            }, 1000);
+                        }
+                    }
                 });
             @endif
 
