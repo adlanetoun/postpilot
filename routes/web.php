@@ -24,7 +24,7 @@ Route::get('/dashboard', [DashboardController::class, 'index'])
 // Webhook receivers
 Route::post('/webhooks/dodo', [DodoWebhookController::class, 'handle'])
     ->middleware('throttle:60,1');
-Route::post('/webhooks/paddle', [PaddleWebhookController::class, 'handle'])
+Route::post('/webhooks/paddle', PaddleWebhookController::class)
     ->middleware('throttle:60,1');
 
 // Authenticated user actions

@@ -4,30 +4,41 @@ namespace App\Http\Controllers\Webhook;
 
 use Laravel\Paddle\Http\Controllers\WebhookController as CashierWebhookController;
 use App\Models\User;
-use App\Services\CreditLedgerService;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
 class PaddleWebhookController extends CashierWebhookController
 {
     /**
+     * Handle a Paddle webhook call.
+     */
+    public function __invoke(Request $request)
+    {
+        Log::info('Paddle webhook payload received', [
+            'event_type' => $request->input('event_type'),
+            'id' => $request->input('data.id'),
+        ]);
+
+        return parent::__invoke($request);
+    }
+
+    /**
      * Handle transaction completed event from Paddle.
      */
-    protected function handleTransactionCompleted(array $payload): void
+    protected function handleTransactionCompleted(array $payload)
     {
-        parent::handleTransactionCompleted($payload);
-
         $transactionId = $payload['data']['id'] ?? null;
         $customData = $payload['data']['custom_data'] ?? [];
         $userId = $customData['user_id'] ?? null;
         $credits = (int) ($customData['credits'] ?? 0);
 
-        Log::info('Paddle transaction completed webhook received', [
+        Log::info('Paddle transaction.completed event processing', [
             'id' => $transactionId,
             'user_id' => $userId,
             'credits' => $credits,
         ]);
 
-        // Fallback: Resolve user by customer email if user_id is missing or not found
+        // Fallback 1: Resolve user by customer email if user_id is missing or not found
         $user = null;
         if ($userId) {
             $user = User::find($userId);
@@ -43,7 +54,7 @@ class PaddleWebhookController extends CashierWebhookController
             }
         }
 
-        // Fallback: Resolve credits by price ID matching if credits count is missing
+        // Fallback 2: Resolve credits by price ID matching if credits count is missing
         if ($credits <= 0) {
             $items = $payload['data']['items'] ?? [];
             foreach ($items as $item) {
@@ -76,5 +87,7 @@ class PaddleWebhookController extends CashierWebhookController
                 'transaction_id' => $transactionId,
             ]);
         }
+
+        return parent::handleTransactionCompleted($payload);
     }
 }
