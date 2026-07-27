@@ -1,2 +1,2 @@
-web: php artisan config:clear && php -r "if(!is_dir('/app/database')){mkdir('/app/database',0777,true);} foreach(['database.sqlite','database_queue.sqlite'] as \$f){if(!file_exists('/app/database/'.\$f)){touch('/app/database/'.\$f); chmod('/app/database/'.\$f,0666);}}" && php artisan migrate:fresh --force && php artisan migrate:fresh --database=sqlite_queue --force && php artisan view:clear && php artisan serve --host 0.0.0.0 --port $PORT
-# Force fresh migrations on persistent volume startup
+web: php artisan config:clear && php -r "\$db='/app/database/database.sqlite'; \$q='/app/database/database_queue.sqlite'; @mkdir('/app/database',0777,true); foreach([\$db,\$q] as \$f){if(!file_exists(\$f)){touch(\$f);chmod(\$f,0666);}}" && php artisan migrate --force && php artisan view:clear && php artisan serve --host 0.0.0.0 --port $PORT
+# Clean Railway SQLite deployment
