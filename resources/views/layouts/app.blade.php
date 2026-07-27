@@ -30,6 +30,33 @@
         <!-- Paddle V2 SDK -->
         <script src="https://cdn.paddle.com/paddle/v2/paddle.js"></script>
         <script>
+            function pollForCreditsUpdate(initialCredits) {
+                let attempts = 0;
+                const maxAttempts = 15;
+                const interval = setInterval(function() {
+                    attempts++;
+                    fetch('{{ route("api.user.credits") }}', {
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'Accept': 'application/json'
+                        }
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data && typeof data.credits !== 'undefined' && data.credits > initialCredits) {
+                            clearInterval(interval);
+                            window.location.reload();
+                        }
+                    })
+                    .catch(err => console.error(err));
+
+                    if (attempts >= maxAttempts) {
+                        clearInterval(interval);
+                        window.location.reload();
+                    }
+                }, 1000);
+            }
+
             @if(config('services.paddle.client_side_token'))
                 @if(config('services.paddle.mode') !== 'live')
                     Paddle.Environment.set('sandbox');
@@ -38,9 +65,8 @@
                     token: "{{ config('services.paddle.client_side_token') }}",
                     eventCallback: function(event) {
                         if (event && (event.name === 'checkout.completed' || event.event === 'checkout.completed')) {
-                            setTimeout(function() {
-                                window.location.reload();
-                            }, 1000);
+                            const initialCredits = {{ Auth::user()->campaign_credits ?? 0 }};
+                            pollForCreditsUpdate(initialCredits);
                         }
                     }
                 });
@@ -58,10 +84,9 @@
                             email: "{{ Auth::user()->email ?? '' }}"
                         },
                         eventCallback: function(data) {
-                            if (data.name === 'checkout.completed' || data.event === 'checkout.completed') {
-                                setTimeout(function() {
-                                    window.location.reload();
-                                }, 1200);
+                            if (data && (data.name === 'checkout.completed' || data.event === 'checkout.completed')) {
+                                const initialCredits = {{ Auth::user()->campaign_credits ?? 0 }};
+                                pollForCreditsUpdate(initialCredits);
                             }
                         }
                     });

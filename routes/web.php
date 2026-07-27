@@ -90,6 +90,13 @@ Route::middleware('auth')->group(function () {
 
     // CRO: Annual Plan Waitlist Capture
     Route::post('/waitlist/annual', [WaitlistController::class, 'store'])->name('waitlist.annual');
+
+    // Real-time credits polling endpoint after checkout
+    Route::get('/api/user/credits', function () {
+        return response()->json([
+            'credits' => (int) (auth()->user() ? auth()->user()->fresh()->campaign_credits : 0)
+        ]);
+    })->name('api.user.credits');
 });
 
 // Facebook Data Deletion
