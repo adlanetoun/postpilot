@@ -40,6 +40,8 @@ class RegisteredUserController extends Controller
         $user->name = $request->name;
         $user->email = $request->email;
         $user->password = Hash::make($request->password);
+        $user->campaign_credits = 0;
+        $user->has_used_demo = false;
         $user->save();
 
         event(new Registered($user));
