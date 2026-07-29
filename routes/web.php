@@ -105,12 +105,11 @@ Route::post('/settings/socials/facebook/data-deletion', [\App\Http\Controllers\F
 Route::get('/settings/socials/facebook/data-deletion-status/{code}', [\App\Http\Controllers\FacebookDataDeletionController::class, 'status'])
     ->name('socials.facebook.data-deletion-status');
 
-// Welcome / landing page for guests
-Route::get('/welcome', function () {
-    return view('welcome');
-})->name('welcome');
-
-
+// Public Legal Pages (Paddle & Compliance Verification)
+Route::view('/terms', 'legal.terms')->name('legal.terms');
+Route::view('/privacy', 'legal.privacy')->name('legal.privacy');
+Route::view('/refunds', 'legal.refunds')->name('legal.refunds');
 
 require __DIR__.'/auth.php';
+
 
