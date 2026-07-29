@@ -12,7 +12,11 @@ use App\Http\Controllers\Webhook\DodoWebhookController;
 use App\Http\Controllers\Webhook\PaddleWebhookController;
 use Illuminate\Support\Facades\Route;
 
-// Public Legal Pages (Paddle & Compliance Verification)
+// Public Landing & Legal Pages (Paddle & Compliance Verification)
+Route::get('/welcome', function () {
+    return view('welcome');
+})->name('welcome');
+
 Route::get('/terms', function () {
     return view('legal.terms');
 })->name('legal.terms');
