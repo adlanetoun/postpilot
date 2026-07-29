@@ -12,6 +12,19 @@ use App\Http\Controllers\Webhook\DodoWebhookController;
 use App\Http\Controllers\Webhook\PaddleWebhookController;
 use Illuminate\Support\Facades\Route;
 
+// Public Legal Pages (Paddle & Compliance Verification)
+Route::get('/terms', function () {
+    return view('legal.terms');
+})->name('legal.terms');
+
+Route::get('/privacy', function () {
+    return view('legal.privacy');
+})->name('legal.privacy');
+
+Route::get('/refunds', function () {
+    return view('legal.refunds');
+})->name('legal.refunds');
+
 // Operational Core (Dashboard) at the web root protected by auth
 Route::get('/', function () {
     return redirect()->route('dashboard');
@@ -104,19 +117,6 @@ Route::post('/settings/socials/facebook/data-deletion', [\App\Http\Controllers\F
     ->name('socials.facebook.data-deletion');
 Route::get('/settings/socials/facebook/data-deletion-status/{code}', [\App\Http\Controllers\FacebookDataDeletionController::class, 'status'])
     ->name('socials.facebook.data-deletion-status');
-
-// Public Legal Pages (Paddle & Compliance Verification)
-Route::get('/terms', function () {
-    return view('legal.terms');
-})->name('legal.terms');
-
-Route::get('/privacy', function () {
-    return view('legal.privacy');
-})->name('legal.privacy');
-
-Route::get('/refunds', function () {
-    return view('legal.refunds');
-})->name('legal.refunds');
 
 require __DIR__.'/auth.php';
 
