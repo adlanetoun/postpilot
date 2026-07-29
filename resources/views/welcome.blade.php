@@ -495,8 +495,9 @@
                         </div>
                         <div class="flex flex-col gap-4">
                             <span class="text-[11px] font-bold text-gray-600 tracking-widest uppercase font-mono mb-2">Legal</span>
-                            <a href="#" class="text-[14px] font-bold text-gray-400 uppercase tracking-wide hover:text-white transition-colors">Privacy</a>
-                            <a href="#" class="text-[14px] font-bold text-gray-400 uppercase tracking-wide hover:text-white transition-colors">Terms</a>
+                            <a href="{{ route('legal.privacy') }}" class="text-[14px] font-bold text-gray-400 uppercase tracking-wide hover:text-white transition-colors">Privacy</a>
+                            <a href="{{ route('legal.terms') }}" class="text-[14px] font-bold text-gray-400 uppercase tracking-wide hover:text-white transition-colors">Terms</a>
+                            <a href="{{ route('legal.refunds') }}" class="text-[14px] font-bold text-gray-400 uppercase tracking-wide hover:text-white transition-colors">Refunds</a>
                         </div>
                     </div>
                 </div>
