@@ -106,10 +106,19 @@ Route::get('/settings/socials/facebook/data-deletion-status/{code}', [\App\Http\
     ->name('socials.facebook.data-deletion-status');
 
 // Public Legal Pages (Paddle & Compliance Verification)
-Route::view('/terms', 'legal.terms')->name('legal.terms');
-Route::view('/privacy', 'legal.privacy')->name('legal.privacy');
-Route::view('/refunds', 'legal.refunds')->name('legal.refunds');
+Route::get('/terms', function () {
+    return view('legal.terms');
+})->name('legal.terms');
+
+Route::get('/privacy', function () {
+    return view('legal.privacy');
+})->name('legal.privacy');
+
+Route::get('/refunds', function () {
+    return view('legal.refunds');
+})->name('legal.refunds');
 
 require __DIR__.'/auth.php';
+
 
 
