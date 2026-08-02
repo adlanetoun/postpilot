@@ -63,6 +63,9 @@
                 @endif
                 Paddle.Initialize({
                     token: "{{ config('services.paddle.client_side_token') }}",
+                    @if(Auth::check() && Auth::user()->customer?->paddle_id)
+                        pwCustomer: { id: "{{ Auth::user()->customer->paddle_id }}" },
+                    @endif
                     eventCallback: function(event) {
                         if (event && (event.name === 'checkout.completed' || event.event === 'checkout.completed')) {
                             const initialCredits = {{ Auth::user()->campaign_credits ?? 0 }};
