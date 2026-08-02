@@ -39,7 +39,7 @@ Route::get('/dashboard', [DashboardController::class, 'index'])
 Route::post('/webhooks/dodo', [DodoWebhookController::class, 'handle'])
     ->middleware('throttle:60,1');
 Route::post('/webhooks/paddle', PaddleWebhookController::class)
-    ->middleware('throttle:60,1');
+    ->middleware(['throttle:60,1', 'verify_paddle_ip']);
 
 // Authenticated user actions
 Route::middleware('auth')->group(function () {

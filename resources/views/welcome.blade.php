@@ -498,6 +498,7 @@
                             <a href="{{ route('legal.privacy') }}" class="text-[14px] font-bold text-gray-400 uppercase tracking-wide hover:text-white transition-colors">Privacy</a>
                             <a href="{{ route('legal.terms') }}" class="text-[14px] font-bold text-gray-400 uppercase tracking-wide hover:text-white transition-colors">Terms</a>
                             <a href="{{ route('legal.refunds') }}" class="text-[14px] font-bold text-gray-400 uppercase tracking-wide hover:text-white transition-colors">Refunds</a>
+                            <a href="mailto:support@postpilot.app" class="text-[14px] font-bold text-gray-400 uppercase tracking-wide hover:text-white transition-colors">Contact</a>
                         </div>
                     </div>
                 </div>

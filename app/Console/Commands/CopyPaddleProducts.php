@@ -39,10 +39,13 @@ class CopyPaddleProducts extends Command
 
         $this->info('Fetching products from Paddle Sandbox...');
 
+        $sandbox = config('cashier.sandbox');
+        $baseUrl = $sandbox ? 'https://sandbox-api.paddle.com' : 'https://api.paddle.com';
+
         $response = Http::withToken($sandboxKey)
-            ->get('https://sandbox-api.paddle.com/products', [
+            ->get("{$baseUrl}/products", [
+                'status' => 'active',
                 'include' => 'prices',
-                'status' => 'active,archived',
             ]);
 
         if ($response->failed()) {

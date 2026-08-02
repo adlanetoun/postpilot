@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Middleware\EnsureHasCampaignCredits;
+use App\Http\Middleware\VerifyPaddleIp;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -19,9 +21,10 @@ return Application::configure(basePath: dirname(__DIR__))
             'webhooks/dodo',
             'webhooks/paddle',
         ]);
-        
+
         $middleware->alias([
-            'has_campaign_credits' => \App\Http\Middleware\EnsureHasCampaignCredits::class,
+            'has_campaign_credits' => EnsureHasCampaignCredits::class,
+            'verify_paddle_ip' => VerifyPaddleIp::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
