@@ -26,15 +26,7 @@ Route::get('/legal/refunds', function () {
     return view('legal.refunds');
 })->name('legal.refunds');
 
-Route::get('/debug-fix', function () {
-    \Illuminate\Support\Facades\Artisan::call('optimize:clear');
-    return [
-        'users_count' => \App\Models\User::count(),
-        'ledgers' => \App\Models\CreditTransaction::all(),
-        'ledgers_count' => \App\Models\CreditTransaction::count(),
-        'user' => \App\Models\User::where('email', 'adlane.tounsi@univ-alger.dz')->first(),
-    ];
-});
+
 
 // Operational Core (Dashboard) at the web root protected by auth
 Route::get('/', function () {
