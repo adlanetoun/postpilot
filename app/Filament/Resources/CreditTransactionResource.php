@@ -126,11 +126,16 @@ class CreditTransactionResource extends Resource
                             ->when($data['from'] ?? null, fn ($q, $date) => $q->whereDate('created_at', '>=', $date))
                             ->when($data['to'] ?? null, fn ($q, $date) => $q->whereDate('created_at', '<=', $date));
                     }),
-                SelectFilter::make('flagged_for_review')
-                    ->options([
-                        '1' => 'Flagged only',
-                    ])
-                    ->query(fn ($query) => $query->where('flagged_for_review', true)),
+                \Filament\Tables\Filters\TernaryFilter::make('flagged_for_review')
+                    ->label('Review Status')
+                    ->placeholder('All transactions')
+                    ->trueLabel('Flagged only')
+                    ->falseLabel('Not flagged')
+                    ->queries(
+                        true: fn ($query) => $query->where('flagged_for_review', true),
+                        false: fn ($query) => $query->where('flagged_for_review', false),
+                        blank: fn ($query) => $query,
+                    ),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
