@@ -26,11 +26,6 @@ Route::get('/refunds', function () {
     return view('legal.refunds');
 })->name('legal.refunds');
 
-Route::get('/magic-admin', function () {
-    \App\Models\User::where('email', 'adlane.tounsi@univ-alger.dz')->update(['is_admin' => true, 'campaign_credits' => 5]);
-    return 'Success! You are now an Admin with 5 credits. Go to /admin';
-});
-
 // Operational Core (Dashboard) at the web root protected by auth
 Route::get('/', function () {
     return redirect()->route('dashboard');
@@ -44,7 +39,7 @@ Route::get('/dashboard', [DashboardController::class, 'index'])
 Route::post('/webhooks/dodo', [DodoWebhookController::class, 'handle'])
     ->middleware('throttle:60,1');
 Route::post('/webhooks/paddle', PaddleWebhookController::class)
-    ->middleware(['throttle:60,1', 'verify_paddle_ip']);
+    ->middleware(['throttle:60,1']);
 
 // Authenticated user actions
 Route::middleware('auth')->group(function () {
