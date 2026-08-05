@@ -73,7 +73,7 @@
 
 
                 <!-- Home -->
-                <a href="{{ url('/welcome') }}" class="flex items-center gap-4 px-4 py-3 text-white/50 hover:text-white hover:bg-white/[0.03] hover:translate-x-1 rounded-xl font-medium text-[14px] transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] relative group">
+                <a href="{{ url('/') }}" class="flex items-center gap-4 px-4 py-3 text-white/50 hover:text-white hover:bg-white/[0.03] hover:translate-x-1 rounded-xl font-medium text-[14px] transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] relative group">
                     <svg class="w-[18px] h-[18px] transition-transform duration-500 group-hover:scale-110 text-white/30 group-hover:text-white/70" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12V10.5a3 3 0 013-3h3.375c.621 0 1.125-.504 1.125-1.125V3h3c1.657 0 3 1.343 3 3v15c0 1.657-1.343 3-3 3h-12c-1.657 0-3-1.343-3-3v-6zm3-4.5h6" />
                     </svg>
