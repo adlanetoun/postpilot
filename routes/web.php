@@ -28,14 +28,16 @@ Route::get('/legal/refunds', function () {
 
 
 
-// Operational Core (Dashboard) at the web root protected by auth
+// Landing Page
 Route::get('/', function () {
-    return redirect()->route('dashboard');
-})->middleware(['auth', 'verified']);
+    return view('welcome');
+})->name('home');
 
 Route::get('/dashboard', [DashboardController::class, 'index'])
     ->middleware(['auth', 'verified'])
     ->name('dashboard');
+
+Route::redirect('/home', '/dashboard');
 
 // Webhook receivers
 Route::post('/webhooks/dodo', [DodoWebhookController::class, 'handle'])
