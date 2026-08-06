@@ -41,11 +41,7 @@ class AppServiceProvider extends ServiceProvider
             }
         }
 
-        // Override the default Socialite twitter-oauth-2 provider with our custom one
-        \Laravel\Socialite\Facades\Socialite::extend('twitter-oauth-2', function ($app) {
-            $config = $app['config']['services.twitter-oauth-2'];
-            return \Laravel\Socialite\Facades\Socialite::buildProvider(\App\Providers\CustomTwitterProvider::class, $config);
-        });
+
 
         // FREE-TIER ROUTING: Demo mode is now decided per-request by the chunk job
         // based on the user's remaining credits, not globally. The job resolves
