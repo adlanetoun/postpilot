@@ -88,6 +88,7 @@ class TwitterConnectionController extends Controller
                     'scopes' => 'tweet.read,tweet.write,users.read,offline.access',
                     'refresh_failures' => 0,
                     'quarantined_until' => null,
+                    'is_premium' => true,
                 ]
             );
 
