@@ -145,15 +145,34 @@ class PublishScheduledPosts extends Command
                         continue;
                     }
 
+                    // Check if Twitter is already proven non-Premium
+                    if (in_array(strtolower($platform), ['twitter', 'x']) && $socialAccount->is_premium === false) {
+                        $errorMessages[$platform] = "Skipped Twitter: Account @{$socialAccount->username} is standard Free Twitter (280-character limit). Upgrade to X Premium for 30-day AI posts.";
+
+                        continue;
+                    }
+
                     try {
                         $id = $this->publishToPlatform($post, $socialAccount, $platform);
                         $platformPostIds[$platform] = $id;
 
+                        if (in_array(strtolower($platform), ['twitter', 'x'])) {
+                            $socialAccount->update(['is_premium' => true]);
+                        }
+
                         $this->info("Post #{$post->id} published to {$platform}. Platform ID: {$id}");
                     } catch (\Exception $e) {
                         $errMsg = $e->getMessage();
-                        $errorMessages[$platform] = $errMsg;
-                        $allSuccess = false;
+
+                        if (in_array(strtolower($platform), ['twitter', 'x']) && (str_contains($errMsg, '280') || str_contains(strtolower($errMsg), 'character limit'))) {
+                            $socialAccount->update(['is_premium' => false]);
+                            $errorMessages[$platform] = "X Premium Required: Account @{$socialAccount->username} is standard Free Twitter. Facebook & LinkedIn will continue publishing.";
+                            // Do not set allSuccess=false here. The post is partially published, we skip twitter gracefully.
+                        } else {
+                            $errorMessages[$platform] = $errMsg;
+                            $allSuccess = false;
+                        }
+
                         $this->error("Post #{$post->id} failed on {$platform}: ".$errMsg);
                     }
 
@@ -191,6 +210,15 @@ class PublishScheduledPosts extends Command
                     continue;
                 }
 
+                if (in_array(strtolower($post->platform), ['twitter', 'x']) && $socialAccount->is_premium === false) {
+                    $post->update([
+                        'status' => 'failed',
+                        'error_message' => "X Premium Required: Account @{$socialAccount->username} is standard Free Twitter (280 char limit). Upgrade to X Premium or connect Facebook/LinkedIn.",
+                    ]);
+
+                    continue;
+                }
+
                 if ($socialAccount->quarantined_until && $socialAccount->quarantined_until->isFuture()) {
                     $post->update(['status' => 'paused', 'error_message' => 'Account quarantined.']);
 
@@ -205,6 +233,9 @@ class PublishScheduledPosts extends Command
 
                 try {
                     $platformPostId = $this->publishToPlatform($post, $socialAccount);
+                    if (in_array(strtolower($post->platform), ['twitter', 'x'])) {
+                        $socialAccount->update(['is_premium' => true]);
+                    }
                     $post->update([
                         'status' => 'published',
                         'published_at' => now(),
@@ -214,6 +245,10 @@ class PublishScheduledPosts extends Command
                     $publishedCount++;
                 } catch (\Exception $e) {
                     $errMsg = $e->getMessage();
+                    if (in_array(strtolower($post->platform), ['twitter', 'x']) && (str_contains($errMsg, '280') || str_contains(strtolower($errMsg), 'character limit'))) {
+                        $socialAccount->update(['is_premium' => false]);
+                        $errMsg = "X Premium Required: Account @{$socialAccount->username} is standard Free Twitter (280 char limit). Upgrade to X Premium or connect Facebook/LinkedIn.";
+                    }
                     $post->update(['status' => 'failed', 'error_message' => 'Publishing failed: '.$errMsg]);
                 }
 
@@ -255,8 +290,6 @@ class PublishScheduledPosts extends Command
 
             return $platform.'_post_'.bin2hex(random_bytes(6));
         }
-
-
 
         // All platforms (Facebook, LinkedIn, Twitter): Publish via PostPeer
         // PostPeer manages OAuth tokens for all connected platforms.
