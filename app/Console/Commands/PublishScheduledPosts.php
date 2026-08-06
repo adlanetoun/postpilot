@@ -2,15 +2,16 @@
 
 namespace App\Console\Commands;
 
+use App\DTOs\PostContentDTO;
 use App\Models\Post;
 use App\Models\SocialAccount;
-use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
-use App\DTOs\PostContentDTO;
 use App\Services\SocialMedia\PostPeerAdapter;
+use Illuminate\Console\Command;
+use Illuminate\Http\Client\PendingRequest;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 
 class PublishScheduledPosts extends Command
 {
@@ -62,7 +63,7 @@ class PublishScheduledPosts extends Command
             ->whereHas('socialAccount', function ($q) {
                 $q->where(function ($q2) {
                     $q2->whereNull('quarantined_until')
-                       ->orWhere('quarantined_until', '<=', now());
+                        ->orWhere('quarantined_until', '<=', now());
                 });
             })
             ->update(['status' => 'approved', 'error_message' => null]);
@@ -81,7 +82,7 @@ class PublishScheduledPosts extends Command
             ->where('scheduled_at', '<=', now())
             ->whereHas('campaign', function ($q) {
                 $q->where('status', 'active')
-                  ->where('is_demo', false);
+                    ->where('is_demo', false);
             })
             ->orderBy('scheduled_at', 'asc')
             ->limit($this->batchLimit)
@@ -89,6 +90,7 @@ class PublishScheduledPosts extends Command
 
         if ($posts->isEmpty()) {
             $this->info('No posts due for publication.');
+
             return Command::SUCCESS;
         }
 
@@ -98,7 +100,7 @@ class PublishScheduledPosts extends Command
 
         foreach ($posts as $post) {
             $user = $post->campaign->project->user;
-            
+
             // Capture the post's updated_at BEFORE the atomic claim so we can
             // detect if it was modified by another worker between our SELECT
             // and the publish call (FIX LEAK-6: idempotency on stale claim).
@@ -110,6 +112,7 @@ class PublishScheduledPosts extends Command
 
             if ($claimed === 0) {
                 $this->info("Post #{$post->id} already claimed or modified by another worker. Skipping.");
+
                 continue;
             }
 
@@ -123,24 +126,22 @@ class PublishScheduledPosts extends Command
                 $allSuccess = true;
 
                 foreach ($platformsToPublish as $platform) {
-                    if (isset($platformPostIds[$platform])) continue;
+                    if (isset($platformPostIds[$platform])) {
+                        continue;
+                    }
 
                     $socialAccount = $post->campaign->project->socialAccounts->where('provider', strtolower($platform))->first();
-                    if (!$socialAccount) {
-                        $errorMessages[$platform] = "No connected social account found.";
+                    if (! $socialAccount) {
+                        $errorMessages[$platform] = 'No connected social account found.';
                         $allSuccess = false;
+
                         continue;
                     }
 
                     if ($socialAccount->quarantined_until && $socialAccount->quarantined_until->isFuture()) {
                         $errorMessages[$platform] = "Account quarantined until {$socialAccount->quarantined_until}.";
                         $allSuccess = false;
-                        continue;
-                    }
 
-                    // Check if Twitter is already proven non-Premium
-                    if (in_array(strtolower($platform), ['twitter', 'x']) && $socialAccount->is_premium === false) {
-                        $errorMessages[$platform] = "Skipped Twitter: Account @{$socialAccount->username} is standard Free Twitter. Upgrade to X Premium for 30-day AI posts.";
                         continue;
                     }
 
@@ -148,21 +149,12 @@ class PublishScheduledPosts extends Command
                         $id = $this->publishToPlatform($post, $socialAccount, $platform);
                         $platformPostIds[$platform] = $id;
 
-                        if (in_array(strtolower($platform), ['twitter', 'x'])) {
-                            $socialAccount->update(['is_premium' => true]);
-                        }
-
                         $this->info("Post #{$post->id} published to {$platform}. Platform ID: {$id}");
                     } catch (\Exception $e) {
                         $errMsg = $e->getMessage();
-                        if (in_array(strtolower($platform), ['twitter', 'x'])) {
-                            $socialAccount->update(['is_premium' => false]);
-                            $errorMessages[$platform] = "X Premium Required: Account @{$socialAccount->username} is standard Free Twitter. Facebook & LinkedIn will continue publishing.";
-                        } else {
-                            $errorMessages[$platform] = $errMsg;
-                            $allSuccess = false;
-                        }
-                        $this->error("Post #{$post->id} failed on {$platform}: " . $errMsg);
+                        $errorMessages[$platform] = $errMsg;
+                        $allSuccess = false;
+                        $this->error("Post #{$post->id} failed on {$platform}: ".$errMsg);
                     }
 
                     if ($this->interRequestDelayMs > 0) {
@@ -171,14 +163,14 @@ class PublishScheduledPosts extends Command
                 }
 
                 // If at least one platform succeeded (e.g. Facebook or LinkedIn), mark post as published!
-                $hasAnySuccess = !empty($platformPostIds);
+                $hasAnySuccess = ! empty($platformPostIds);
 
                 if ($hasAnySuccess) {
                     $post->update([
                         'status' => 'published',
                         'published_at' => now(),
                         'platform_post_id' => json_encode($platformPostIds),
-                        'error_message' => !empty($errorMessages) ? json_encode($errorMessages) : null,
+                        'error_message' => ! empty($errorMessages) ? json_encode($errorMessages) : null,
                     ]);
                     $publishedCount++;
                 } else {
@@ -193,34 +185,26 @@ class PublishScheduledPosts extends Command
                 // Legacy Single Platform Support
                 $socialAccount = $post->campaign->project->socialAccounts->where('provider', strtolower($post->platform))->first();
 
-                if (!$socialAccount) {
-                    $post->update(['status' => 'failed', 'error_message' => "No connected social account found for platform: " . $post->platform]);
-                    continue;
-                }
+                if (! $socialAccount) {
+                    $post->update(['status' => 'failed', 'error_message' => 'No connected social account found for platform: '.$post->platform]);
 
-                if (in_array(strtolower($post->platform), ['twitter', 'x']) && $socialAccount->is_premium === false) {
-                    $post->update([
-                        'status' => 'failed',
-                        'error_message' => "X Premium Required: Account @{$socialAccount->username} is standard Free Twitter (280 char limit). Upgrade to X Premium or connect Facebook/LinkedIn."
-                    ]);
                     continue;
                 }
 
                 if ($socialAccount->quarantined_until && $socialAccount->quarantined_until->isFuture()) {
-                    $post->update(['status' => 'paused', 'error_message' => "Account quarantined."]);
+                    $post->update(['status' => 'paused', 'error_message' => 'Account quarantined.']);
+
                     continue;
                 }
 
                 if ($post->platform_post_id) {
                     $post->update(['status' => 'published']);
+
                     continue;
                 }
 
                 try {
                     $platformPostId = $this->publishToPlatform($post, $socialAccount);
-                    if (in_array(strtolower($post->platform), ['twitter', 'x'])) {
-                        $socialAccount->update(['is_premium' => true]);
-                    }
                     $post->update([
                         'status' => 'published',
                         'published_at' => now(),
@@ -230,11 +214,7 @@ class PublishScheduledPosts extends Command
                     $publishedCount++;
                 } catch (\Exception $e) {
                     $errMsg = $e->getMessage();
-                    if (in_array(strtolower($post->platform), ['twitter', 'x']) && (str_contains($errMsg, '280') || str_contains($errMsg, 'character limit'))) {
-                        $socialAccount->update(['is_premium' => false]);
-                        $errMsg = "X Premium Required: Account @{$socialAccount->username} is standard Free Twitter (280 char limit). Upgrade to X Premium or connect Facebook/LinkedIn.";
-                    }
-                    $post->update(['status' => 'failed', 'error_message' => 'Publishing failed: ' . $errMsg]);
+                    $post->update(['status' => 'failed', 'error_message' => 'Publishing failed: '.$errMsg]);
                 }
 
                 if ($this->interRequestDelayMs > 0) {
@@ -244,13 +224,14 @@ class PublishScheduledPosts extends Command
         }
 
         $this->info("Publishing sequence completed. Published: {$publishedCount}/{$posts->count()}");
+
         return Command::SUCCESS;
     }
 
     /**
      * Get a pre-configured HTTP client with strict timeouts (VULN-P2-1)
      */
-    private function httpClient(): \Illuminate\Http\Client\PendingRequest
+    private function httpClient(): PendingRequest
     {
         return Http::connectTimeout(5)->timeout(30);
     }
@@ -261,7 +242,7 @@ class PublishScheduledPosts extends Command
     private function publishToPlatform(Post $post, SocialAccount $socialAccount, ?string $targetPlatform = null): string
     {
         $platform = strtolower($targetPlatform ?? $post->platform);
-        
+
         // Retrieve access token. Refresh if expired.
         $token = $socialAccount->access_token;
         if ($socialAccount->expires_at && $socialAccount->expires_at->isPast()) {
@@ -270,8 +251,9 @@ class PublishScheduledPosts extends Command
 
         // Bypass real API calls in local testing or with mock keys to avoid external dependencies in tests
         if (app()->environment('testing') || str_starts_with($token, 'mock_') || str_starts_with($token, 'testing') || $token === 'token') {
-            $this->info("Skipping real API call (testing/mock token). Generating simulated ID.");
-            return $platform . '_post_' . bin2hex(random_bytes(6));
+            $this->info('Skipping real API call (testing/mock token). Generating simulated ID.');
+
+            return $platform.'_post_'.bin2hex(random_bytes(6));
         }
 
         if ($platform === 'twitter') {
@@ -282,19 +264,19 @@ class PublishScheduledPosts extends Command
 
             if ($response->successful()) {
                 $tweetId = $response->json('data.id');
-                
-                if (!empty($post->first_reply_content)) {
+
+                if (! empty($post->first_reply_content)) {
                     $replyResponse = $this->httpClient()->withToken($token)
                         ->post('https://api.twitter.com/2/tweets', [
                             'text' => $post->first_reply_content,
-                            'reply' => ['in_reply_to_tweet_id' => $tweetId]
+                            'reply' => ['in_reply_to_tweet_id' => $tweetId],
                         ]);
-                        
-                    if (!$replyResponse->successful()) {
-                        Log::error("Failed to post first reply for tweet {$tweetId}: " . $replyResponse->body());
+
+                    if (! $replyResponse->successful()) {
+                        Log::error("Failed to post first reply for tweet {$tweetId}: ".$replyResponse->body());
                     }
                 }
-                
+
                 return $tweetId;
             }
 
@@ -306,10 +288,10 @@ class PublishScheduledPosts extends Command
                 Log::warning("Twitter rate limit hit for {$socialAccount->username}. Quarantined for {$retryAfter}s.");
                 throw new \Exception("Twitter rate limited (429). Account quarantined for {$retryAfter}s.");
             }
-            
+
             // Retry once if token was expired but database wasn't synced/expired yet
             if ($response->status() === 401) {
-                $this->info("Access token unauthorized (401). Retrying with token refresh.");
+                $this->info('Access token unauthorized (401). Retrying with token refresh.');
                 $token = $this->refreshToken($socialAccount);
                 $response = $this->httpClient()->withToken($token)
                     ->post('https://api.twitter.com/2/tweets', [
@@ -317,31 +299,31 @@ class PublishScheduledPosts extends Command
                     ]);
                 if ($response->successful()) {
                     $tweetId = $response->json('data.id');
-                    
-                    if (!empty($post->first_reply_content)) {
+
+                    if (! empty($post->first_reply_content)) {
                         $replyResponse = $this->httpClient()->withToken($token)
                             ->post('https://api.twitter.com/2/tweets', [
                                 'text' => $post->first_reply_content,
-                                'reply' => ['in_reply_to_tweet_id' => $tweetId]
+                                'reply' => ['in_reply_to_tweet_id' => $tweetId],
                             ]);
-                            
-                        if (!$replyResponse->successful()) {
-                            Log::error("Failed to post first reply for tweet {$tweetId} (after token refresh): " . $replyResponse->body());
+
+                        if (! $replyResponse->successful()) {
+                            Log::error("Failed to post first reply for tweet {$tweetId} (after token refresh): ".$replyResponse->body());
                         }
                     }
-                    
+
                     return $tweetId;
                 }
             }
-            
-            throw new \Exception("Twitter API Error: " . $response->body());
+
+            throw new \Exception('Twitter API Error: '.$response->body());
         }
 
-        // Facebook and LinkedIn: Publish via PostPeer
-        if (in_array($platform, ['facebook', 'linkedin'])) {
+        // All platforms (Facebook, LinkedIn, Twitter): Publish via PostPeer
+        // PostPeer manages OAuth tokens for all connected platforms.
+        if (in_array($platform, ['facebook', 'linkedin', 'twitter'])) {
             return $this->publishViaPostPeer($post, $platform);
         }
-
 
         throw new \Exception("Unsupported platform: {$platform}");
     }
@@ -356,7 +338,7 @@ class PublishScheduledPosts extends Command
             ->where('provider', 'postpeer')
             ->first();
 
-        if (!$postpeerAccount) {
+        if (! $postpeerAccount) {
             throw new \Exception("No PostPeer profile found for this project. Cannot publish to {$platform}.");
         }
 
@@ -364,7 +346,7 @@ class PublishScheduledPosts extends Command
             ->where('provider', $platform)
             ->first();
 
-        if (!$targetAccount) {
+        if (! $targetAccount) {
             throw new \Exception("No social account found for {$platform} in this project.");
         }
 
@@ -384,7 +366,7 @@ class PublishScheduledPosts extends Command
         }
 
         // PostPeer returned success but no post ID in response
-        return 'postpeer_' . $platform . '_' . bin2hex(random_bytes(6));
+        return 'postpeer_'.$platform.'_'.bin2hex(random_bytes(6));
     }
 
     /**
@@ -394,7 +376,7 @@ class PublishScheduledPosts extends Command
     {
         $platform = $socialAccount->provider;
 
-        if (!$socialAccount->refresh_token) {
+        if (! $socialAccount->refresh_token) {
             throw new \Exception("No refresh token available to refresh access token for {$platform}.");
         }
 
@@ -435,6 +417,7 @@ class PublishScheduledPosts extends Command
                     ]);
                 });
                 $this->info("Successfully refreshed token for {$socialAccount->username} ({$platform})");
+
                 return $newAccessToken;
             }
         }

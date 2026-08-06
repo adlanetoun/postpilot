@@ -1606,9 +1606,8 @@
                                         $acc = $project->socialAccounts->firstWhere('provider', $plat);
                                         $isConn = (bool)$acc;
                                         $isQuar = $acc && $acc->quarantined_until && $acc->quarantined_until->isFuture();
-                                        $isNonPremium = $acc && strtolower($plat) === 'twitter' && $acc->is_premium === false;
                                     @endphp
-                                    <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-medium backdrop-blur-md transition-all {{ $isConn ? ($isNonPremium ? 'bg-amber-500/10 text-amber-200 border-amber-500/30' : ($isQuar ? 'bg-rose-500/15 text-rose-300 border-rose-500/30 animate-pulse' : 'bg-white/[0.04] text-slate-200 border-white/[0.08] hover:border-white/20')) : 'opacity-40 bg-white/[0.02] text-slate-500 border-white/[0.05]' }}">
+                                    <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-medium backdrop-blur-md transition-all {{ $isConn ? ($isQuar ? 'bg-rose-500/15 text-rose-300 border-rose-500/30 animate-pulse' : 'bg-white/[0.04] text-slate-200 border-white/[0.08] hover:border-white/20') : 'opacity-40 bg-white/[0.02] text-slate-500 border-white/[0.05]' }}">
                                         @if($plat === 'twitter')
                                             <svg class="w-3.5 h-3.5 fill-current text-slate-300" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
                                         @elseif($plat === 'linkedin')
@@ -1621,11 +1620,7 @@
                                             <span class="text-slate-400 font-normal text-[10px]">({{ $acc->username }})</span>
                                         @endif
                                         @if($isConn)
-                                            @if($isNonPremium)
-                                                <button type="button" onclick="alert('⚠️ X (Twitter) Premium Required:\n\nYour connected Twitter account (@{{ $acc->username }}) is a standard Free Twitter account (280-character limit).\n\nYour 30-day AI campaign posts are published seamlessly to Facebook and LinkedIn. To enable automated publishing on X (Twitter), please upgrade your account to X Premium / Blue.')" class="text-amber-300 hover:text-amber-100 font-extrabold ml-1 inline-flex items-center gap-0.5 cursor-pointer bg-amber-500/20 px-1.5 py-0.5 rounded text-[9px] border border-amber-500/30 transition-colors" title="Click for details: X Premium Required">
-                                                    ⚠️ <span class="underline">Non-Premium</span>
-                                                </button>
-                                            @elseif($isQuar)
+                                            @if($isQuar)
                                                 <span class="text-rose-400 font-bold ml-1" title="OAuth Interrupted">Outage</span>
                                             @else
                                                 <span class="text-emerald-400 font-bold ml-1">✓</span>
@@ -1638,23 +1633,7 @@
                             </div>
                         </div>
 
-                        @php
-                            $twitterAcc = $project->socialAccounts->firstWhere('provider', 'twitter');
-                        @endphp
-                        @if($twitterAcc && $twitterAcc->is_premium === false)
-                            <div class="w-full flex items-center justify-between bg-amber-500/[0.08] border border-amber-500/20 rounded-2xl px-4 py-3 text-xs text-amber-200 mt-3 backdrop-blur-md">
-                                <div class="flex items-center gap-2.5">
-                                    <span class="text-base">⚠️</span>
-                                    <div>
-                                        <span class="font-bold text-amber-200">X (Twitter) Account @<span>{{ $twitterAcc->username }}</span> is Standard Free (280-char limit).</span>
-                                        <span class="text-[11px] text-amber-300/80 block mt-0.5">Long-form AI campaign posts are published to Facebook & LinkedIn. Upgrade @<span>{{ $twitterAcc->username }}</span> to X Premium to enable Twitter publishing.</span>
-                                    </div>
-                                </div>
-                                <button type="button" onclick="document.getElementById('twitter-premium-modal').showModal()" class="bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 font-bold px-3 py-1.5 rounded-xl text-[10px] uppercase tracking-wider shrink-0 border border-amber-500/30 transition-all cursor-pointer">
-                                    Why Twitter Skipped?
-                                </button>
-                            </div>
-                        @endif
+
 
                         @if ($project->socialAccounts->contains(function($account) { return $account->quarantined_until && $account->quarantined_until->isFuture(); }))
                             <div class="flex flex-col gap-2 mt-4">
