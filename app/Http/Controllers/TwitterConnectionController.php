@@ -28,7 +28,7 @@ class TwitterConnectionController extends Controller
         // Store the project ID so we know which project to attach the account to
         session()->put('twitter_oauth_project_id', $project->id);
 
-        return Socialite::driver('twitter')
+        return Socialite::driver('twitter-oauth-2')
             ->setScopes(['tweet.read', 'tweet.write', 'users.read', 'offline.access'])
             ->redirect();
     }
@@ -56,7 +56,7 @@ class TwitterConnectionController extends Controller
             }
 
             // Retrieve the user from Socialite using the OAuth 2.0 flow
-            $twitterUser = Socialite::driver('twitter')->user();
+            $twitterUser = Socialite::driver('twitter-oauth-2')->user();
 
             // Check if this Twitter account is already attached to a DIFFERENT project
             $alreadyUsedByOther = SocialAccount::where('provider', 'twitter')

@@ -384,8 +384,8 @@ class PublishScheduledPosts extends Command
         $response = null;
 
         if ($platform === 'twitter' || $platform === 'twitter-oauth-2') {
-            $clientId = config('services.twitter.client_id');
-            $clientSecret = config('services.twitter.client_secret');
+            $clientId = config('services.twitter-oauth-2.client_id');
+            $clientSecret = config('services.twitter-oauth-2.client_secret');
 
             $response = $this->httpClient()->asForm()
                 ->withBasicAuth($clientId, $clientSecret)

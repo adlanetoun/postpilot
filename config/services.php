@@ -70,11 +70,10 @@ return [
     ],
 
     // Direct Twitter API Integration (Bypassing PostPeer)
-    'twitter' => [
+    'twitter-oauth-2' => [
         'client_id' => env('TWITTER_CLIENT_ID'),
         'client_secret' => env('TWITTER_CLIENT_SECRET'),
         'redirect' => env('TWITTER_REDIRECT_URI'),
-        'oauth' => 2,
     ],
 
 ];
