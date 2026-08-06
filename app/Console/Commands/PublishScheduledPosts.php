@@ -256,68 +256,7 @@ class PublishScheduledPosts extends Command
             return $platform.'_post_'.bin2hex(random_bytes(6));
         }
 
-        if ($platform === 'twitter') {
-            $response = $this->httpClient()->withToken($token)
-                ->post('https://api.twitter.com/2/tweets', [
-                    'text' => $post->content,
-                ]);
 
-            if ($response->successful()) {
-                $tweetId = $response->json('data.id');
-
-                if (! empty($post->first_reply_content)) {
-                    $replyResponse = $this->httpClient()->withToken($token)
-                        ->post('https://api.twitter.com/2/tweets', [
-                            'text' => $post->first_reply_content,
-                            'reply' => ['in_reply_to_tweet_id' => $tweetId],
-                        ]);
-
-                    if (! $replyResponse->successful()) {
-                        Log::error("Failed to post first reply for tweet {$tweetId}: ".$replyResponse->body());
-                    }
-                }
-
-                return $tweetId;
-            }
-
-            // SECURITY FIX VULN-7: Handle 429 rate limiting before retrying.
-            // Quarantine the account for the duration Twitter specifies.
-            if ($response->status() === 429) {
-                $retryAfter = (int) $response->header('Retry-After', 900);
-                $socialAccount->update(['quarantined_until' => now()->addSeconds($retryAfter)]);
-                Log::warning("Twitter rate limit hit for {$socialAccount->username}. Quarantined for {$retryAfter}s.");
-                throw new \Exception("Twitter rate limited (429). Account quarantined for {$retryAfter}s.");
-            }
-
-            // Retry once if token was expired but database wasn't synced/expired yet
-            if ($response->status() === 401) {
-                $this->info('Access token unauthorized (401). Retrying with token refresh.');
-                $token = $this->refreshToken($socialAccount);
-                $response = $this->httpClient()->withToken($token)
-                    ->post('https://api.twitter.com/2/tweets', [
-                        'text' => $post->content,
-                    ]);
-                if ($response->successful()) {
-                    $tweetId = $response->json('data.id');
-
-                    if (! empty($post->first_reply_content)) {
-                        $replyResponse = $this->httpClient()->withToken($token)
-                            ->post('https://api.twitter.com/2/tweets', [
-                                'text' => $post->first_reply_content,
-                                'reply' => ['in_reply_to_tweet_id' => $tweetId],
-                            ]);
-
-                        if (! $replyResponse->successful()) {
-                            Log::error("Failed to post first reply for tweet {$tweetId} (after token refresh): ".$replyResponse->body());
-                        }
-                    }
-
-                    return $tweetId;
-                }
-            }
-
-            throw new \Exception('Twitter API Error: '.$response->body());
-        }
 
         // All platforms (Facebook, LinkedIn, Twitter): Publish via PostPeer
         // PostPeer manages OAuth tokens for all connected platforms.
