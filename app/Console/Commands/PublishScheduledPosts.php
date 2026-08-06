@@ -291,10 +291,12 @@ class PublishScheduledPosts extends Command
             return $platform.'_post_'.bin2hex(random_bytes(6));
         }
 
-        // All platforms (Facebook, LinkedIn, Twitter): Publish via PostPeer
-        // PostPeer manages OAuth tokens for all connected platforms.
-        if (in_array($platform, ['facebook', 'linkedin', 'twitter'])) {
+        if (in_array($platform, ['facebook', 'linkedin'])) {
             return $this->publishViaPostPeer($post, $platform);
+        }
+
+        if ($platform === 'twitter') {
+            return $this->publishDirectTwitter($post, $token);
         }
 
         throw new \Exception("Unsupported platform: {$platform}");
@@ -342,6 +344,31 @@ class PublishScheduledPosts extends Command
     }
 
     /**
+     * Publish directly to Twitter using the native v2 API with User Context OAuth 2.0.
+     */
+    private function publishDirectTwitter(Post $post, string $token): string
+    {
+        $this->info("Publishing Post #{$post->id} to Twitter via Direct API");
+
+        $response = $this->httpClient()
+            ->withToken($token)
+            ->post('https://api.twitter.com/2/tweets', [
+                'text' => $post->content,
+            ]);
+
+        if ($response->successful()) {
+            $data = $response->json();
+
+            return (string) ($data['data']['id'] ?? 'twitter_direct_'.bin2hex(random_bytes(6)));
+        }
+
+        $error = $response->json();
+        $detail = $error['detail'] ?? $response->body();
+
+        throw new \Exception("Twitter API Error: {$detail}");
+    }
+
+    /**
      * Refresh the OAuth 2.0 access token for the given social account.
      */
     private function refreshToken(SocialAccount $socialAccount): string
@@ -357,8 +384,8 @@ class PublishScheduledPosts extends Command
         $response = null;
 
         if ($platform === 'twitter' || $platform === 'twitter-oauth-2') {
-            $clientId = config('services.twitter-oauth-2.client_id');
-            $clientSecret = config('services.twitter-oauth-2.client_secret');
+            $clientId = config('services.twitter.client_id');
+            $clientSecret = config('services.twitter.client_secret');
 
             $response = $this->httpClient()->asForm()
                 ->withBasicAuth($clientId, $clientSecret)

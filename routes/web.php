@@ -8,6 +8,7 @@ use App\Http\Controllers\PostController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\SocialConnectionController;
+use App\Http\Controllers\TwitterConnectionController;
 use App\Http\Controllers\WaitlistController;
 use App\Http\Controllers\Webhook\DodoWebhookController;
 use App\Http\Controllers\Webhook\PaddleWebhookController;
@@ -25,8 +26,6 @@ Route::get('/privacy', function () {
 Route::get('/legal/refunds', function () {
     return view('legal.refunds');
 })->name('legal.refunds');
-
-
 
 // Landing Page
 Route::get('/', function () {
@@ -85,6 +84,11 @@ Route::middleware('auth')->group(function () {
         ->middleware('throttle:20,1')
         ->name('social-accounts.disconnect');
 
+    // Direct Twitter API Connection routes
+    Route::get('/projects/{project}/socials/connect-direct/twitter', [TwitterConnectionController::class, 'redirect'])
+        ->middleware('throttle:20,1')
+        ->name('social-accounts.connect-twitter');
+
     // Polling endpoint to check connection status
     Route::get('/projects/{project}/socials/check-status', [SocialConnectionController::class, 'checkStatus'])
         ->middleware('throttle:60,1')
@@ -105,6 +109,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/settings', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/settings', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/settings', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    // Twitter OAuth 2.0 Callback
+    Route::get('/settings/socials/callback/twitter', [TwitterConnectionController::class, 'callback'])
+        ->name('socials.twitter.callback');
 
     // CRO: Annual Plan Waitlist Capture
     Route::post('/waitlist/annual', [WaitlistController::class, 'store'])->name('waitlist.annual');

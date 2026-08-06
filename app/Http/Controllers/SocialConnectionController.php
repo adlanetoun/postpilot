@@ -3,11 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Contracts\SocialMediaPublisherInterface;
+use App\Models\Campaign;
 use App\Models\Project;
 use App\Models\SocialAccount;
 use App\Services\SocialMedia\PostPeerAdapter;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
@@ -33,17 +35,22 @@ class SocialConnectionController extends Controller
         }
 
         $validPlatforms = ['linkedin', 'twitter', 'facebook'];
-        if (!in_array($platform, $validPlatforms)) {
+        if (! in_array($platform, $validPlatforms)) {
             abort(400, 'Invalid platform.');
         }
 
-        // Step 1: Ensure this project has a PostPeer profile
+        // Step 1: Handle Direct Integration platforms (e.g. Twitter via Socialite)
+        if ($platform === 'twitter') {
+            return redirect()->signedRoute('social-accounts.connect-twitter', ['project' => $project->id]);
+        }
+
+        // Step 1.5: Ensure this project has a PostPeer profile
         $postpeerAccount = $project->socialAccounts()->where('provider', 'postpeer')->first();
 
-        if (!$postpeerAccount) {
+        if (! $postpeerAccount) {
             try {
                 $adapter = $this->resolveAdapter();
-                $profileId = $adapter->createProfile($project->name . ' - ' . Str::random(6));
+                $profileId = $adapter->createProfile($project->name.' - '.Str::random(6));
 
                 $postpeerAccount = $project->socialAccounts()->create([
                     'user_id' => Auth::id(),
@@ -54,6 +61,7 @@ class SocialConnectionController extends Controller
                 ]);
             } catch (\Exception $e) {
                 Log::error('Failed to create PostPeer profile', ['error' => $e->getMessage()]);
+
                 return view('socials.popup-callback', [
                     'status' => 'error',
                     'message' => 'Failed to initialize social media connection. Please try again.',
@@ -65,7 +73,7 @@ class SocialConnectionController extends Controller
 
         // Step 1.5: Clean up any orphaned integrations for this platform in PostPeer.
         // Since the user is clicking "Connect", they want to start fresh.
-        // If an old integration exists (e.g. they abandoned the flow previously), it will cause the 
+        // If an old integration exists (e.g. they abandoned the flow previously), it will cause the
         // polling `checkStatus` to instantly return false positives.
         try {
             $adapter = $this->resolveAdapter();
@@ -76,7 +84,7 @@ class SocialConnectionController extends Controller
                 }
             }
         } catch (\Exception $e) {
-            Log::warning("Failed to clean up orphaned integrations before connect", ['error' => $e->getMessage()]);
+            Log::warning('Failed to clean up orphaned integrations before connect', ['error' => $e->getMessage()]);
         }
 
         // Step 2: Generate the PostPeer OAuth connect URL
@@ -87,6 +95,7 @@ class SocialConnectionController extends Controller
             $connectUrl = $adapter->generateConnectUrl($providerProfileId, $platform);
         } catch (\Exception $e) {
             Log::error('Failed to generate connect URL', ['error' => $e->getMessage()]);
+
             return view('socials.popup-callback', [
                 'status' => 'error',
                 'message' => 'Failed to start the connection process. Please try again.',
@@ -111,17 +120,22 @@ class SocialConnectionController extends Controller
         }
 
         $validPlatforms = ['linkedin', 'twitter', 'facebook'];
-        if (!in_array($platform, $validPlatforms)) {
+        if (! in_array($platform, $validPlatforms)) {
             abort(400, 'Invalid platform.');
+        }
+
+        // Handle Direct Integration platforms (e.g. Twitter via Socialite)
+        if ($platform === 'twitter') {
+            return redirect()->signedRoute('social-accounts.connect-twitter', ['project' => $project->id]);
         }
 
         // Ensure this project has a PostPeer profile
         $postpeerAccount = $project->socialAccounts()->where('provider', 'postpeer')->first();
 
-        if (!$postpeerAccount) {
+        if (! $postpeerAccount) {
             try {
                 $adapter = $this->resolveAdapter();
-                $profileId = $adapter->createProfile($project->name . ' - ' . Str::random(6));
+                $profileId = $adapter->createProfile($project->name.' - '.Str::random(6));
 
                 $postpeerAccount = $project->socialAccounts()->create([
                     'user_id' => Auth::id(),
@@ -132,6 +146,7 @@ class SocialConnectionController extends Controller
                 ]);
             } catch (\Exception $e) {
                 Log::error('Failed to create PostPeer profile', ['error' => $e->getMessage()]);
+
                 return view('socials.popup-callback', [
                     'status' => 'error',
                     'message' => 'Failed to initialize social media connection. Please try again.',
@@ -151,7 +166,7 @@ class SocialConnectionController extends Controller
                 }
             }
         } catch (\Exception $e) {
-            Log::warning("Failed to clean up orphaned integrations before connect", ['error' => $e->getMessage()]);
+            Log::warning('Failed to clean up orphaned integrations before connect', ['error' => $e->getMessage()]);
         }
 
         // Generate the PostPeer OAuth connect URL
@@ -160,6 +175,7 @@ class SocialConnectionController extends Controller
             $connectUrl = $adapter->generateConnectUrl($providerProfileId, $platform);
         } catch (\Exception $e) {
             Log::error('Failed to generate connect URL', ['error' => $e->getMessage()]);
+
             return view('socials.popup-callback', [
                 'status' => 'error',
                 'message' => 'Failed to start the connection process. Please try again.',
@@ -183,17 +199,17 @@ class SocialConnectionController extends Controller
             abort(403, 'Unauthorized action.');
         }
 
-        $hasActiveCampaign = \App\Models\Campaign::where('project_id', $project->id)
+        $hasActiveCampaign = Campaign::where('project_id', $project->id)
             ->whereIn('status', ['active', 'paused', 'generating'])
             ->exists();
 
         if ($hasActiveCampaign) {
             return redirect()->route('projects.show', $project->id)
-                ->with('error', 'Cannot disconnect ' . ucfirst($platform) . ' while there is an active, paused, or generating campaign.');
+                ->with('error', 'Cannot disconnect '.ucfirst($platform).' while there is an active, paused, or generating campaign.');
         }
 
         $account = $project->socialAccounts()->where('provider', $platform)->first();
-        if (!$account) {
+        if (! $account) {
             return redirect()->route('projects.show', $project->id)
                 ->with('error', 'Account not found.');
         }
@@ -210,7 +226,7 @@ class SocialConnectionController extends Controller
                     // Find the integration matching this platform
                     if (($integration['platform'] ?? '') === $platform) {
                         $adapter->deleteIntegration($integration['id']);
-                        Log::debug("Deleted PostPeer integration", [
+                        Log::debug('Deleted PostPeer integration', [
                             'integration_id' => $integration['id'],
                             'platform' => $platform,
                             'project_id' => $project->id,
@@ -224,8 +240,9 @@ class SocialConnectionController extends Controller
         }
 
         $account->delete();
+
         return redirect()->route('projects.show', $project->id)
-            ->with('success', ucfirst($platform) . ' account disconnected successfully.');
+            ->with('success', ucfirst($platform).' account disconnected successfully.');
     }
 
     /**
@@ -240,14 +257,20 @@ class SocialConnectionController extends Controller
             return response()->json(['connected' => [], 'rejected' => []]);
         }
 
+        // Check local DB for direct integration platforms (e.g. Twitter)
+        $directConnected = [];
+        if (SocialAccount::where('project_id', $project->id)->where('provider', 'twitter')->exists()) {
+            $directConnected[] = 'twitter';
+        }
+
         $postpeerAccount = $project->socialAccounts()->where('provider', 'postpeer')->first();
-        if (!$postpeerAccount) {
-            return response()->json(['connected' => [], 'rejected' => []]);
+        if (! $postpeerAccount) {
+            return response()->json(['connected' => $directConnected, 'rejected' => []]);
         }
 
         $profileId = $postpeerAccount->provider_user_id;
         $adapter = $this->resolveAdapter();
-        
+
         try {
             $integrations = $adapter->getIntegrations($profileId);
         } catch (\Exception $e) {
@@ -256,7 +279,7 @@ class SocialConnectionController extends Controller
             return response()->json(['connected' => [], 'rejected' => [], 'needs_selection' => []]);
         }
 
-        $confirmedConnected = [];
+        $confirmedConnected = $directConnected;
         $rejected = [];
         $needsSelection = [];
 
@@ -265,7 +288,7 @@ class SocialConnectionController extends Controller
             $platformUserId = $integration['platformUserId'] ?? null;
             $integrationId = $integration['id'] ?? null;
 
-            if (!$platform || !$platformUserId) {
+            if (! $platform || ! $platformUserId) {
                 continue;
             }
 
@@ -281,10 +304,11 @@ class SocialConnectionController extends Controller
                     try {
                         $adapter->deleteIntegration($integrationId);
                     } catch (\Exception $e) {
-                        Log::warning("Failed to delete duplicate integration", ['error' => $e->getMessage()]);
+                        Log::warning('Failed to delete duplicate integration', ['error' => $e->getMessage()]);
                     }
                 }
                 $rejected[] = $platform;
+
                 continue;
             }
 
@@ -303,7 +327,7 @@ class SocialConnectionController extends Controller
             } else {
                 // NEW integration detected — needs page selection
                 // Don't auto-save; let the user choose via select-page screen
-                if (!in_array($platform, $needsSelection)) {
+                if (! in_array($platform, $needsSelection)) {
                     $needsSelection[] = $platform;
                 }
             }
@@ -328,17 +352,18 @@ class SocialConnectionController extends Controller
         }
 
         $postpeerAccount = $project->socialAccounts()->where('provider', 'postpeer')->first();
-        if (!$postpeerAccount) {
+        if (! $postpeerAccount) {
             return redirect()->route('projects.show', $project->id)
                 ->with('error', 'No PostPeer profile found. Please try connecting again.');
         }
 
         $adapter = $this->resolveAdapter();
-        
+
         try {
             $integrations = $adapter->getIntegrations($postpeerAccount->provider_user_id);
         } catch (\Exception $e) {
             Log::warning('PostPeer getIntegrations timeout in selectPage', ['error' => $e->getMessage()]);
+
             return redirect()->route('projects.show', $project->id)
                 ->with('error', 'The connection to PostPeer timed out. The platform might be experiencing high traffic. Please try again.');
         }
@@ -373,7 +398,7 @@ class SocialConnectionController extends Controller
             }
 
             $pages[] = [
-                'name' => $integration['displayName'] ?? ucfirst($platform) . ' Page',
+                'name' => $integration['displayName'] ?? ucfirst($platform).' Page',
                 'logo_url' => $integration['imageUrl'] ?? null,
                 'provider_user_id' => $platformUserId,
                 'integration_id' => $integration['id'] ?? null,
@@ -385,7 +410,7 @@ class SocialConnectionController extends Controller
         // Generate a CSRF-like state token to prevent replay attacks on savePage
         $state = Str::random(40);
         session()->put("social_select_state_{$project->id}_{$platform}", $state);
-        
+
         $isPopup = $request->query('popup') == '1';
 
         return view('socials.select-page', [
@@ -408,7 +433,7 @@ class SocialConnectionController extends Controller
 
         // Validate state token
         $expectedState = session()->pull("social_select_state_{$project->id}_{$platform}");
-        if (!$expectedState || $request->input('state') !== $expectedState) {
+        if (! $expectedState || $request->input('state') !== $expectedState) {
             return redirect()->route('projects.show', $project->id)
                 ->with('error', 'Invalid or expired session. Please try connecting again.');
         }
@@ -416,7 +441,7 @@ class SocialConnectionController extends Controller
         $selectedIndex = (int) $request->input('selected_page_index', 0);
 
         $postpeerAccount = $project->socialAccounts()->where('provider', 'postpeer')->first();
-        if (!$postpeerAccount) {
+        if (! $postpeerAccount) {
             return redirect()->route('projects.show', $project->id)
                 ->with('error', 'No PostPeer profile found.');
         }
@@ -427,6 +452,7 @@ class SocialConnectionController extends Controller
             $integrations = $adapter->getIntegrations($postpeerAccount->provider_user_id);
         } catch (\Exception $e) {
             Log::warning('PostPeer getIntegrations failed during savePage', ['error' => $e->getMessage()]);
+
             return redirect()->route('projects.show', $project->id)
                 ->with('error', 'Connection to PostPeer timed out. Please try connecting again.');
         }
@@ -463,7 +489,7 @@ class SocialConnectionController extends Controller
             $platformIntegrations[] = $integration;
         }
 
-        if (empty($platformIntegrations) || !isset($platformIntegrations[$selectedIndex])) {
+        if (empty($platformIntegrations) || ! isset($platformIntegrations[$selectedIndex])) {
             return redirect()->route('projects.show', $project->id)
                 ->with('error', 'Selected page is no longer available. Please try connecting again.');
         }
@@ -473,14 +499,14 @@ class SocialConnectionController extends Controller
         // Zero API Credit Consumption Mode: Direct OAuth connection without pre-flight API calls
         // PostPeer manages OAuth token storage seamlessly.
 
-        \Illuminate\Support\Facades\DB::beginTransaction();
+        DB::beginTransaction();
         try {
             // Save the selected page to DB
             $project->socialAccounts()->create([
                 'user_id' => Auth::id(),
                 'provider' => $platform,
                 'provider_user_id' => $selectedIntegration['platformUserId'],
-                'username' => $selectedIntegration['displayName'] ?? ucfirst($platform) . ' via PostPeer',
+                'username' => $selectedIntegration['displayName'] ?? ucfirst($platform).' via PostPeer',
                 'access_token' => $selectedIntegration['id'] ?? 'managed_by_postpeer',
                 'scopes' => '',
             ]);
@@ -495,31 +521,32 @@ class SocialConnectionController extends Controller
                 if ($integrationId) {
                     try {
                         $adapter->deleteIntegration($integrationId);
-                        Log::debug("Deleted unselected PostPeer integration", [
+                        Log::debug('Deleted unselected PostPeer integration', [
                             'integration_id' => $integrationId,
                             'platform' => $platform,
                             'project_id' => $project->id,
                         ]);
                     } catch (\Exception $e) {
-                        Log::warning("Failed to delete unselected integration", ['error' => $e->getMessage()]);
+                        Log::warning('Failed to delete unselected integration', ['error' => $e->getMessage()]);
                     }
                 }
             }
 
-            \Illuminate\Support\Facades\DB::commit();
+            DB::commit();
         } catch (\Exception $e) {
-            \Illuminate\Support\Facades\DB::rollBack();
-            Log::error("Failed to save selected page", ['error' => $e->getMessage()]);
+            DB::rollBack();
+            Log::error('Failed to save selected page', ['error' => $e->getMessage()]);
+
             return redirect()->route('projects.show', $project->id)
                 ->with('error', 'Failed to complete the connection. Please try again.');
         }
 
-        Log::info("Page selected and saved", [
+        Log::info('Page selected and saved', [
             'platform' => $platform,
             'page_name' => $selectedIntegration['displayName'] ?? 'unknown',
             'project_id' => $project->id,
         ]);
-        
+
         if ($request->input('popup') == '1') {
             // The popup should close itself. The main window's polling will detect CASE 3 and reload.
             return response()->setContent("
@@ -537,7 +564,7 @@ class SocialConnectionController extends Controller
         }
 
         return redirect()->route('projects.show', $project->id)
-            ->with('success', ucfirst($platform) . ' page connected successfully!');
+            ->with('success', ucfirst($platform).' page connected successfully!');
     }
 
     /**
