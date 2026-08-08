@@ -9,6 +9,16 @@
         <link rel="icon" type="image/svg+xml" href="{{ asset('favicon.svg') }}?v=4">
         <link rel="shortcut icon" href="{{ asset('favicon.svg') }}?v=4">
 
+        <!-- Google tag (gtag.js) -->
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-6Z2EJ5BCR3"></script>
+        <script>
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+
+          gtag('config', 'G-6Z2EJ5BCR3');
+        </script>
+
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
