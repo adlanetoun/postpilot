@@ -36,10 +36,10 @@
             <!-- Quick Presets -->
             <div class="flex items-center gap-2 pt-1">
                 <span class="text-xs text-slate-500 font-medium">Quick Source Presets:</span>
-                <button @click="setPreset('linkedin', 'social')" class="px-2.5 py-1 bg-blue-950 text-blue-400 border border-blue-800/40 rounded-lg text-xs font-medium hover:bg-blue-900">LinkedIn</button>
-                <button @click="setPreset('twitter', 'social')" class="px-2.5 py-1 bg-sky-950 text-sky-400 border border-sky-800/40 rounded-lg text-xs font-medium hover:bg-sky-900">Twitter/X</button>
-                <button @click="setPreset('facebook', 'social')" class="px-2.5 py-1 bg-indigo-950 text-indigo-400 border border-indigo-800/40 rounded-lg text-xs font-medium hover:bg-indigo-900">Facebook</button>
-                <button @click="setPreset('newsletter', 'email')" class="px-2.5 py-1 bg-amber-950 text-amber-400 border border-amber-800/40 rounded-lg text-xs font-medium hover:bg-amber-900">Email</button>
+                <button x-on:click="setPreset('linkedin', 'social')" class="px-2.5 py-1 bg-blue-950 text-blue-400 border border-blue-800/40 rounded-lg text-xs font-medium hover:bg-blue-900">LinkedIn</button>
+                <button x-on:click="setPreset('twitter', 'social')" class="px-2.5 py-1 bg-sky-950 text-sky-400 border border-sky-800/40 rounded-lg text-xs font-medium hover:bg-sky-900">Twitter/X</button>
+                <button x-on:click="setPreset('facebook', 'social')" class="px-2.5 py-1 bg-indigo-950 text-indigo-400 border border-indigo-800/40 rounded-lg text-xs font-medium hover:bg-indigo-900">Facebook</button>
+                <button x-on:click="setPreset('newsletter', 'email')" class="px-2.5 py-1 bg-amber-950 text-amber-400 border border-amber-800/40 rounded-lg text-xs font-medium hover:bg-amber-900">Email</button>
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
@@ -110,7 +110,7 @@
             <div class="mt-6 pt-4 border-t border-slate-800 flex items-center justify-between">
                 <span class="text-xs text-slate-500">Valid GA4 Link</span>
                 <button 
-                    @click="copyUrl()"
+                    x-on:click="copyUrl()"
                     class="px-5 py-2.5 bg-teal-600 hover:bg-teal-500 text-white text-xs font-bold rounded-xl shadow-lg transition-colors"
                 >
                     <span x-text="copied ? 'Copied URL!' : 'Copy UTM Link'"></span>

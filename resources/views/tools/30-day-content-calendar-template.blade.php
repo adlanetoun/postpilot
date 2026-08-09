@@ -27,7 +27,7 @@
                 <input 
                     id="nicheInput"
                     type="text" x-model="niche" 
-                    @input="generateCalendar()"
+                    x-on:input="generateCalendar()"
                     placeholder="e.g. B2B SaaS, E-commerce, Real Estate, Fitness Coach" 
                     class="w-full bg-slate-950 border border-slate-800 focus:border-emerald-500 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none"
                 >
@@ -35,7 +35,7 @@
 
             <div class="sm:col-span-4">
                 <button 
-                    @click="exportCsv()"
+                    x-on:click="exportCsv()"
                     class="w-full py-2.5 px-4 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-xl shadow-lg transition-colors flex items-center justify-center gap-2"
                 >
                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">

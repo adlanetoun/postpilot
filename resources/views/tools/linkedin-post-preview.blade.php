@@ -58,7 +58,7 @@
 
         <div class="mt-6 pt-4 border-t border-slate-800/80 flex items-center justify-between gap-3">
             <button 
-                @click="copyText()"
+                x-on:click="copyText()"
                 class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold border border-slate-700 transition-colors"
             >
                 <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -68,7 +68,7 @@
             </button>
 
             <button 
-                @click="text = samplePost"
+                x-on:click="text = samplePost"
                 class="text-xs text-indigo-400 hover:underline font-medium"
             >
                 Load Sample Hook
@@ -85,14 +85,14 @@
                 </span>
                 <div class="flex items-center gap-2">
                     <button 
-                        @click="mode = 'desktop'"
+                        x-on:click="mode = 'desktop'"
                         :class="mode === 'desktop' ? 'bg-indigo-600 text-white' : 'bg-slate-900 text-slate-400 hover:text-slate-200'"
                         class="px-2.5 py-1 rounded-lg text-xs font-medium transition-colors"
                     >
                         Desktop
                     </button>
                     <button 
-                        @click="mode = 'mobile'"
+                        x-on:click="mode = 'mobile'"
                         :class="mode === 'mobile' ? 'bg-indigo-600 text-white' : 'bg-slate-900 text-slate-400 hover:text-slate-200'"
                         class="px-2.5 py-1 rounded-lg text-xs font-medium transition-colors"
                     >

@@ -26,7 +26,7 @@
                     <label for="counterInput" class="block text-xs font-bold uppercase tracking-wider text-slate-300">
                         Post Content
                     </label>
-                    <button @click="text = ''" x-show="text.length > 0" class="text-xs text-slate-500 hover:text-slate-300">Clear</button>
+                    <button x-on:click="text = ''" x-show="text.length > 0" class="text-xs text-slate-500 hover:text-slate-300">Clear</button>
                 </div>
                 
                 <textarea 
@@ -59,7 +59,7 @@
 
             <div class="mt-6 pt-4 border-t border-slate-800 flex items-center justify-between">
                 <button 
-                    @click="copyAll()"
+                    x-on:click="copyAll()"
                     class="px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white text-xs font-semibold rounded-xl shadow-md transition-colors"
                 >
                     <span x-text="copied ? 'Copied!' : 'Copy Text'"></span>

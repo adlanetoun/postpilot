@@ -48,7 +48,7 @@
                     <p class="text-sm font-medium text-slate-100 truncate" x-text="convert(text, 'boldSerif') || 'Your formatted text will appear here...'"></p>
                 </div>
                 <button 
-                    @click="copyStyle(convert(text, 'boldSerif'), 'boldSerif')"
+                    x-on:click="copyStyle(convert(text, 'boldSerif'), 'boldSerif')"
                     class="px-3.5 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold shrink-0 transition-colors"
                 >
                     <span x-text="copiedStyle === 'boldSerif' ? 'Copied!' : 'Copy'"></span>
@@ -62,7 +62,7 @@
                     <p class="text-sm font-medium text-slate-100 truncate" x-text="convert(text, 'italicSerif') || 'Your formatted text will appear here...'"></p>
                 </div>
                 <button 
-                    @click="copyStyle(convert(text, 'italicSerif'), 'italicSerif')"
+                    x-on:click="copyStyle(convert(text, 'italicSerif'), 'italicSerif')"
                     class="px-3.5 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold shrink-0 transition-colors"
                 >
                     <span x-text="copiedStyle === 'italicSerif' ? 'Copied!' : 'Copy'"></span>
@@ -76,7 +76,7 @@
                     <p class="text-sm font-medium text-slate-100 truncate" x-text="convert(text, 'boldSans') || 'Your formatted text will appear here...'"></p>
                 </div>
                 <button 
-                    @click="copyStyle(convert(text, 'boldSans'), 'boldSans')"
+                    x-on:click="copyStyle(convert(text, 'boldSans'), 'boldSans')"
                     class="px-3.5 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold shrink-0 transition-colors"
                 >
                     <span x-text="copiedStyle === 'boldSans' ? 'Copied!' : 'Copy'"></span>
@@ -90,7 +90,7 @@
                     <p class="text-sm font-mono text-slate-100 truncate" x-text="convert(text, 'monospace') || 'Your formatted text will appear here...'"></p>
                 </div>
                 <button 
-                    @click="copyStyle(convert(text, 'monospace'), 'monospace')"
+                    x-on:click="copyStyle(convert(text, 'monospace'), 'monospace')"
                     class="px-3.5 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold shrink-0 transition-colors"
                 >
                     <span x-text="copiedStyle === 'monospace' ? 'Copied!' : 'Copy'"></span>

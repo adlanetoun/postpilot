@@ -55,7 +55,7 @@
                     <p class="text-sm font-semibold text-slate-100 font-sans leading-relaxed" x-text="renderHook(hook.template)"></p>
                 </div>
                 <button 
-                    @click="copyHook(renderHook(hook.template), index)"
+                    x-on:click="copyHook(renderHook(hook.template), index)"
                     class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold rounded-lg shrink-0 transition-colors"
                 >
                     <span x-text="copiedIndex === index ? 'Copied!' : 'Copy Hook'"></span>

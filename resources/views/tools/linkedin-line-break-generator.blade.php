@@ -28,7 +28,7 @@
                 <textarea 
                     id="rawInputText"
                     x-model="rawText"
-                    @input="formatText()"
+                    x-on:input="formatText()"
                     rows="10"
                     placeholder="Paste text with paragraph breaks..."
                     class="w-full bg-slate-950 border border-slate-800 focus:border-amber-500 rounded-xl p-4 text-sm text-slate-100 placeholder-slate-600 focus:outline-none focus:ring-1 focus:ring-amber-500 font-sans leading-relaxed resize-y"
@@ -37,7 +37,7 @@
 
             <div class="mt-4 pt-4 border-t border-slate-800 flex items-center justify-between text-xs">
                 <span class="text-slate-400">Preserved Paragraphs: <strong class="text-white" x-text="paragraphCount"></strong></span>
-                <button @click="rawText = sampleText; formatText()" class="text-amber-400 hover:underline">Load Sample</button>
+                <button x-on:click="rawText = sampleText; formatText()" class="text-amber-400 hover:underline">Load Sample</button>
             </div>
         </div>
 
@@ -59,7 +59,7 @@
             <div class="mt-6 pt-4 border-t border-slate-800 flex items-center justify-between">
                 <span class="text-xs text-slate-500">Ready to paste directly into LinkedIn</span>
                 <button 
-                    @click="copyFormatted()"
+                    x-on:click="copyFormatted()"
                     class="px-5 py-2.5 bg-amber-600 hover:bg-amber-500 text-white text-xs font-bold rounded-xl shadow-lg transition-colors"
                 >
                     <span x-text="copied ? 'Copied with Safe Spacing!' : 'Copy Formatted Text'"></span>

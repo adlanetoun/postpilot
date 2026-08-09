@@ -42,7 +42,7 @@
         <!-- Schema.org WebApplication Markup -->
         <script type="application/ld+json">
         {
-          "@context": "https://schema.org",
+          "@@context": "https://schema.org",
           "@type": "WebApplication",
           "name": "@yield('tool_name', 'Free Social Media Tool')",
           "url": "{{ url()->current() }}",

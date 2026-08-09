@@ -28,7 +28,7 @@
                 <textarea 
                     id="threadContent"
                     x-model="rawText"
-                    @input="splitThread()"
+                    x-on:input="splitThread()"
                     rows="12"
                     placeholder="Paste your long text here..."
                     class="w-full bg-slate-950 border border-slate-800 focus:border-sky-500 rounded-xl p-4 text-sm text-slate-100 placeholder-slate-600 focus:outline-none focus:ring-1 focus:ring-sky-500 font-sans leading-relaxed resize-y"
@@ -42,13 +42,13 @@
 
             <div class="mt-6 pt-4 border-t border-slate-800 flex items-center justify-between">
                 <button 
-                    @click="rawText = sampleArticle; splitThread()"
+                    x-on:click="rawText = sampleArticle; splitThread()"
                     class="text-xs text-sky-400 hover:underline font-medium"
                 >
                     Load Sample Article
                 </button>
                 <button 
-                    @click="copyAllTweets()"
+                    x-on:click="copyAllTweets()"
                     x-show="tweets.length > 0"
                     class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-sky-600 hover:bg-sky-500 text-white text-xs font-semibold shadow-md shadow-sky-600/20 transition-all"
                 >
@@ -83,7 +83,7 @@
 
                             <div class="flex justify-end">
                                 <button 
-                                    @click="copySingleTweet(tweet, index)"
+                                    x-on:click="copySingleTweet(tweet, index)"
                                     class="text-xs text-slate-400 hover:text-white bg-slate-950 px-3 py-1 rounded-lg border border-slate-800 hover:border-slate-700 transition-colors"
                                 >
                                     <span x-text="copiedIndex === index ? 'Copied!' : 'Copy Tweet'"></span>
