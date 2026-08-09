@@ -132,3 +132,4 @@ Route::get('/settings/socials/facebook/data-deletion-status/{code}', [FacebookDa
     ->name('socials.facebook.data-deletion-status');
 
 require __DIR__.'/auth.php';
+require __DIR__.'/tools.php';
