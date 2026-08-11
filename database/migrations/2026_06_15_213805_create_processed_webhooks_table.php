@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('event_type');
             $table->json('payload')->nullable();
             $table->timestamp('created_at')->nullable();
-            
+
             $table->index('created_at');
         });
     }

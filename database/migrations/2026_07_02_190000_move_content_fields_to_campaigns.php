@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
@@ -24,9 +25,9 @@ return new class extends Migration
         });
 
         // Step 2: Copy existing data from projects to their campaigns
-        $projects = \Illuminate\Support\Facades\DB::table('projects')->get();
+        $projects = DB::table('projects')->get();
         foreach ($projects as $project) {
-            \Illuminate\Support\Facades\DB::table('campaigns')
+            DB::table('campaigns')
                 ->where('project_id', $project->id)
                 ->update([
                     'description' => $project->description,

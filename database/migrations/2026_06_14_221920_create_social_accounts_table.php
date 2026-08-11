@@ -20,7 +20,7 @@ return new class extends Migration
             $table->text('refresh_token')->nullable();
             $table->timestamp('expires_at')->nullable();
             $table->string('scopes')->nullable();
-            
+
             // Circuit Breaker Fields
             $table->unsignedInteger('refresh_failures')->default(0);
             $table->timestamp('quarantined_until')->nullable();

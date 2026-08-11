@@ -19,7 +19,7 @@ return new class extends Migration
             $table->json('payload');
             $table->timestamp('processed_at')->nullable()->index();
             $table->timestamps();
-            
+
             $table->index('event_type');
         });
     }

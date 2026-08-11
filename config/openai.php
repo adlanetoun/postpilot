@@ -66,8 +66,8 @@ return [
         'days_per_chunk' => 7,
         'sample_template' => [
             'day' => 1,
-            'content' => "[DEMO CONTENT] This is a sample Master Post for Day {day}. In live mode, the AI generates unique omnichannel copy tailored to your brand voice, target audience, and funnel phase.",
-            'first_reply_content' => "In live mode, the deep breakdown link and resources would appear here. (Demo Mode — no real LLM call was made.)",
+            'content' => '[DEMO CONTENT] This is a sample Master Post for Day {day}. In live mode, the AI generates unique omnichannel copy tailored to your brand voice, target audience, and funnel phase.',
+            'first_reply_content' => 'In live mode, the deep breakdown link and resources would appear here. (Demo Mode — no real LLM call was made.)',
         ],
     ],
 ];

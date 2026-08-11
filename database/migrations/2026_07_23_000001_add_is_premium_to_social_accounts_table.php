@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        if (!Schema::hasColumn('social_accounts', 'is_premium')) {
+        if (! Schema::hasColumn('social_accounts', 'is_premium')) {
             Schema::table('social_accounts', function (Blueprint $table) {
                 $table->boolean('is_premium')->nullable()->after('access_token');
             });
