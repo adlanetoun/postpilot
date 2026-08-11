@@ -13,6 +13,7 @@ class WebhookLog extends Model
     {
         return static::where('created_at', '<', now()->subDays(90));
     }
+
     // SECURITY FIX B-1: Explicit fillable
     protected $fillable = [
         'provider',

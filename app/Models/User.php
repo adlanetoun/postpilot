@@ -9,16 +9,16 @@ use Filament\Panel;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use Laravel\Paddle\Billable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Laravel\Paddle\Billable;
 
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable implements FilamentUser
 {
     /** @use HasFactory<UserFactory> */
-    use HasFactory, Notifiable, Billable;
+    use Billable, HasFactory, Notifiable;
 
     public function canAccessPanel(Panel $panel): bool
     {
@@ -67,6 +67,7 @@ class User extends Authenticatable implements FilamentUser
         if ($this->has_used_demo) {
             return false;
         }
+
         return (bool) $this->update(['has_used_demo' => true]);
     }
 

@@ -2,11 +2,12 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 
 class CreditTransaction extends Model
 {
-    use \Illuminate\Database\Eloquent\Concerns\HasUuids;
+    use HasUuids;
 
     protected $guarded = [];
 
