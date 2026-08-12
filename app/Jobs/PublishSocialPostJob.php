@@ -20,6 +20,7 @@ class PublishSocialPostJob implements ShouldQueue
      * FIX E-1: Retry up to 3 times with exponential backoff (30s, 2min, 5min).
      */
     public int $tries = 3;
+
     public array $backoff = [30, 120, 300];
 
     /**

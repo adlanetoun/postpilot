@@ -25,9 +25,17 @@ class ToolController extends Controller
     /**
      * 2. Free Twitter / X Thread Splitter & Auto-Numbering
      */
-    public function twitterThreadSplitter()
+    public function twitterThreadSplitter($modifier = null)
     {
-        return view('tools.twitter-thread-splitter');
+        $seo = null;
+        if ($modifier) {
+            $seo = config("tool_modifiers.twitter-thread-splitter.{$modifier}");
+            if (! $seo) {
+                abort(404);
+            }
+        }
+
+        return view('tools.twitter-thread-splitter', compact('seo'));
     }
 
     /**
@@ -41,9 +49,17 @@ class ToolController extends Controller
     /**
      * 4. Multi-Platform Social Character Limit Counter Grid
      */
-    public function socialCharacterCounter()
+    public function socialCharacterCounter($modifier = null)
     {
-        return view('tools.social-character-counter');
+        $seo = null;
+        if ($modifier) {
+            $seo = config("tool_modifiers.social-character-counter.{$modifier}");
+            if (! $seo) {
+                abort(404);
+            }
+        }
+
+        return view('tools.social-character-counter', compact('seo'));
     }
 
     /**

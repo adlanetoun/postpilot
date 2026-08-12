@@ -2,6 +2,8 @@
 
 namespace App\Services;
 
+use Illuminate\Support\Facades\Log;
+
 /**
  * FREE USER TEASER: Stub LLM service for demo / preview paths.
  *
@@ -30,7 +32,7 @@ class StubOpenAIService extends OpenAIService
             ];
         }
 
-        \Illuminate\Support\Facades\Log::info('StubOpenAIService served FREE preview (no LLM cost)', [
+        Log::info('StubOpenAIService served FREE preview (no LLM cost)', [
             'brand' => $inputs['brand'],
             'days' => count($posts),
         ]);
@@ -50,17 +52,29 @@ class StubOpenAIService extends OpenAIService
         ];
 
         preg_match('/Brand Name:\s*([^\n-]+)/i', $prompt, $m);
-        if ($m) $defaults['brand'] = trim($m[1]);
+        if ($m) {
+            $defaults['brand'] = trim($m[1]);
+        }
         preg_match('/Product Description:\s*([^\n-]+)/i', $prompt, $m);
-        if ($m) $defaults['description'] = trim($m[1]);
+        if ($m) {
+            $defaults['description'] = trim($m[1]);
+        }
         preg_match('/Target Audience:\s*([^\n-]+)/i', $prompt, $m);
-        if ($m) $defaults['audience'] = trim($m[1]);
+        if ($m) {
+            $defaults['audience'] = trim($m[1]);
+        }
         preg_match('/Value Proposition:\s*([^\n-]+)/i', $prompt, $m);
-        if ($m) $defaults['value_prop'] = trim($m[1]);
+        if ($m) {
+            $defaults['value_prop'] = trim($m[1]);
+        }
         preg_match('/Tone of Voice:\s*([^\n-]+)/i', $prompt, $m);
-        if ($m) $defaults['tone'] = trim($m[1]);
+        if ($m) {
+            $defaults['tone'] = trim($m[1]);
+        }
         preg_match('/Output Language:\s*([^\n-]+)/i', $prompt, $m);
-        if ($m) $defaults['language'] = trim($m[1]);
+        if ($m) {
+            $defaults['language'] = trim($m[1]);
+        }
 
         // Detect funnel phase (Week 1-4)
         preg_match('/Week (\d)/i', $prompt, $m);
@@ -84,6 +98,7 @@ class StubOpenAIService extends OpenAIService
             $chunk = 1;
             $total = 5;
         }
+
         return ['start' => $start, 'end' => $end, 'chunk' => $chunk, 'total' => $total];
     }
 
@@ -96,8 +111,8 @@ class StubOpenAIService extends OpenAIService
         // Pick a hook based on the day
         $hooks = [
             "Most {$audience} get this wrong on day one.",
-            "Stop scrolling. This changes everything.",
-            "I wasted 3 years before I learned this.",
+            'Stop scrolling. This changes everything.',
+            'I wasted 3 years before I learned this.',
             "The {$brand} team tested 47 strategies. Here's what worked.",
             "If you're a {$audience}, read this twice.",
             "The brutal truth nobody tells {$audience}.",
@@ -116,11 +131,11 @@ class StubOpenAIService extends OpenAIService
 
         // CTA based on day
         $ctas = [
-            "Bookmark this. Then tell me your biggest struggle below.",
-            "Try this for 7 days. Report back with your results.",
-            "Tag someone who needs to read this today.",
+            'Bookmark this. Then tell me your biggest struggle below.',
+            'Try this for 7 days. Report back with your results.',
+            'Tag someone who needs to read this today.',
             "Drop a 🙋 if you've made this mistake before.",
-            "Save this for your next strategy session.",
+            'Save this for your next strategy session.',
             "Predict where you'll be in 90 days. I'll reply to everyone.",
         ];
         $cta = $ctas[$day % count($ctas)];
@@ -131,9 +146,10 @@ class StubOpenAIService extends OpenAIService
     private function generateRealisticReply(array $inputs, int $day): string
     {
         $brand = $inputs['brand'];
+
         return "📌 Full breakdown + templates in the first comment.\n\n"
-             . "If you want the exact prompts we used at {$brand} to scale to 12K followers in 90 days — "
-             . "the link is below.\n\n"
-             . "⚠️ Limited spots: we're opening 50 new accounts this month.";
+             ."If you want the exact prompts we used at {$brand} to scale to 12K followers in 90 days — "
+             ."the link is below.\n\n"
+             ."⚠️ Limited spots: we're opening 50 new accounts this month.";
     }
 }

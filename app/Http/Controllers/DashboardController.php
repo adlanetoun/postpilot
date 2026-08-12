@@ -3,8 +3,6 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\Project;
-use App\Models\Campaign;
 
 class DashboardController extends Controller
 {
@@ -14,10 +12,10 @@ class DashboardController extends Controller
     public function index(Request $request)
     {
         $user = $request->user();
-        $projects = $user->projects()->with(['campaigns' => function($q) {
+        $projects = $user->projects()->with(['campaigns' => function ($q) {
             $q->latest();
         }, 'socialAccounts'])->latest()->get();
-        
+
         if ($projects->isEmpty()) {
             return view('dashboard', [
                 'state' => 'A',

@@ -18,22 +18,22 @@ class WaitlistController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'email'          => ['required', 'email', 'max:255'],
-            'plan_interest'  => ['nullable', 'string', Rule::in(['annual', 'team', 'agency'])],
-            'source'         => ['nullable', 'string', 'max:64'],
+            'email' => ['required', 'email', 'max:255'],
+            'plan_interest' => ['nullable', 'string', Rule::in(['annual', 'team', 'agency'])],
+            'source' => ['nullable', 'string', 'max:64'],
         ]);
 
         $email = $validated['email'];
-        $plan  = $validated['plan_interest'] ?? 'annual';
+        $plan = $validated['plan_interest'] ?? 'annual';
         $source = $validated['source'] ?? 'profile_edit';
 
         $signup = WaitlistSignup::updateOrCreate(
             ['email' => $email, 'plan_interest' => $plan],
             [
-                'user_id'   => Auth::id(),
-                'source'    => $source,
-                'metadata'  => array_filter([
-                    'referer'  => substr($request->headers->get('referer') ?? '', 0, 500),
+                'user_id' => Auth::id(),
+                'source' => $source,
+                'metadata' => array_filter([
+                    'referer' => substr($request->headers->get('referer') ?? '', 0, 500),
                     'user_agent_browser' => $request->headers->get('sec-ch-ua'),
                 ]),
             ]
@@ -41,8 +41,8 @@ class WaitlistController extends Controller
 
         if ($request->expectsJson() || $request->ajax()) {
             return response()->json([
-                'ok'       => true,
-                'message'  => "You're on the list! We'll email you when annual plans launch.",
+                'ok' => true,
+                'message' => "You're on the list! We'll email you when annual plans launch.",
                 'position' => WaitlistSignup::where('plan_interest', $plan)->count(),
             ]);
         }

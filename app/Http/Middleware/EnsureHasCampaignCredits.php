@@ -17,7 +17,7 @@ class EnsureHasCampaignCredits
      * Falls back to redirect only for non-GET requests (form submissions) or
      * when the request explicitly expects a redirect (e.g. AJAX).
      *
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
+     * @param  Closure(Request): (Response)  $next
      */
     public function handle(Request $request, Closure $next): Response
     {
@@ -35,6 +35,7 @@ class EnsureHasCampaignCredits
             if ($request->method() !== 'GET' || $request->expectsJson() || $request->ajax()) {
                 return redirect('/settings?tab=billing&error=credits_required');
             }
+
             return redirect()->back()->with('insufficient_credits', true);
         }
 

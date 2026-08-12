@@ -2,10 +2,10 @@
 
 namespace App\Providers;
 
-use Illuminate\Support\ServiceProvider;
 use App\Contracts\SocialMediaPublisherInterface;
 use App\Services\SocialMedia\PostPeerAdapter;
 use App\Services\SocialMedia\QuotaEnforcerDecorator;
+use Illuminate\Support\ServiceProvider;
 
 class SocialMediaServiceProvider extends ServiceProvider
 {
@@ -16,8 +16,8 @@ class SocialMediaServiceProvider extends ServiceProvider
     {
         $this->app->bind(SocialMediaPublisherInterface::class, function ($app) {
             // 1. Instantiate the base adapter
-            $baseAdapter = new PostPeerAdapter();
-            
+            $baseAdapter = new PostPeerAdapter;
+
             // 2. Wrap it with the Quota Decorator (limit to 30 posts)
             return new QuotaEnforcerDecorator($baseAdapter, 30);
         });

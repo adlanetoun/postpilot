@@ -5,7 +5,6 @@ namespace Tests\Feature;
 use App\Http\Middleware\VerifyPaddleIp;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
-use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Tests\TestCase as BaseTestCase;
 
@@ -17,7 +16,7 @@ class VerifyPaddleIpTest extends BaseTestCase
         Cache::flush();
     }
 
-    public function testSkipsIpCheckInLocalEnvironment(): void
+    public function test_skips_ip_check_in_local_environment(): void
     {
         // Default test environment is 'testing', which should be skipped
         $middleware = new VerifyPaddleIp;
@@ -32,7 +31,7 @@ class VerifyPaddleIpTest extends BaseTestCase
         $this->assertEquals(200, $response->getStatusCode());
     }
 
-    public function testAllowsRequestFromPaddleIpInProduction(): void
+    public function test_allows_request_from_paddle_ip_in_production(): void
     {
         $this->app->detectEnvironment(fn () => 'production');
 
@@ -51,7 +50,7 @@ class VerifyPaddleIpTest extends BaseTestCase
         $this->assertEquals(200, $response->getStatusCode());
     }
 
-    public function testRejectsRequestFromUnknownIpInProduction(): void
+    public function test_rejects_request_from_unknown_ip_in_production(): void
     {
         $this->app->detectEnvironment(fn () => 'production');
 
@@ -70,7 +69,7 @@ class VerifyPaddleIpTest extends BaseTestCase
         });
     }
 
-    public function testAllowsThroughWhenIpListIsEmpty(): void
+    public function test_allows_through_when_ip_list_is_empty(): void
     {
         $this->app->detectEnvironment(fn () => 'production');
 

@@ -1,5 +1,7 @@
 <?php
 
+use App\Models\ProcessedWebhook;
+use App\Models\WebhookLog;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Schedule;
@@ -15,7 +17,7 @@ Schedule::command('app:publish-scheduled-posts')
 
 Schedule::command('model:prune', [
     '--model' => [
-        \App\Models\WebhookLog::class,
-        \App\Models\ProcessedWebhook::class,
-    ]
+        WebhookLog::class,
+        ProcessedWebhook::class,
+    ],
 ])->daily();

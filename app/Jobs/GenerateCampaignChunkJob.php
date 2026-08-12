@@ -2,22 +2,28 @@
 
 namespace App\Jobs;
 
+use App\Models\Campaign;
+use App\Models\CreditTransaction;
+use App\Models\Post;
+use App\Services\OpenAIService;
+use App\Services\StubOpenAIService;
+use Carbon\Carbon;
+use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use App\Services\OpenAIService;
-use App\Models\Post;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
-use Illuminate\Bus\Batchable;
 
 class GenerateCampaignChunkJob implements ShouldQueue
 {
     use Batchable, Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public $tries = 4;
+
     public $timeout = 120;
 
     public function backoff(): array
@@ -40,7 +46,7 @@ class GenerateCampaignChunkJob implements ShouldQueue
             $decoded = json_decode($this->platforms, true);
             $this->platforms = is_array($decoded) ? $decoded : [$this->platforms];
         }
-        if (!is_array($this->platforms)) {
+        if (! is_array($this->platforms)) {
             $this->platforms = ['linkedin', 'twitter', 'facebook'];
         }
     }
@@ -51,12 +57,14 @@ class GenerateCampaignChunkJob implements ShouldQueue
         // exit quietly without calling the LLM API or throwing exceptions/FAIL logs in queue worker.
         if ($this->batch()?->cancelled()) {
             Log::info("GenerateCampaignChunkJob #{$this->chunkNumber} skipped — batch was cancelled.");
+
             return;
         }
 
-        $campaign = \App\Models\Campaign::with('project.user')->find($this->campaignId);
-        if (!$campaign || $campaign->status !== 'generating') {
+        $campaign = Campaign::with('project.user')->find($this->campaignId);
+        if (! $campaign || $campaign->status !== 'generating') {
             Log::info("GenerateCampaignChunkJob #{$this->chunkNumber} skipped — campaign {$this->campaignId} deleted or no longer generating.");
+
             return;
         }
 
@@ -68,11 +76,11 @@ class GenerateCampaignChunkJob implements ShouldQueue
         // they must purchase credits to generate anything — even more demos.
         $isDemoGeneration = $user->canUseFreeDemo();
         $llmService = $isDemoGeneration
-            ? new \App\Services\StubOpenAIService()
+            ? new StubOpenAIService
             : $openAiService;
 
         // Mark the campaign as demo + flip the user's one-time flag
-        if ($isDemoGeneration && !$campaign->is_demo) {
+        if ($isDemoGeneration && ! $campaign->is_demo) {
             $campaign->update(['is_demo' => true]);
             $user->markDemoUsed();
         }
@@ -87,9 +95,9 @@ class GenerateCampaignChunkJob implements ShouldQueue
         );
 
         // SECURITY FIX 6-B: Validate LLM response structure before persisting
-        if (!is_array($response) || empty($response)) {
+        if (! is_array($response) || empty($response)) {
             throw new \RuntimeException(
-                'LLM returned empty or non-array response for chunk ' . $this->chunkNumber
+                'LLM returned empty or non-array response for chunk '.$this->chunkNumber
             );
         }
 
@@ -107,7 +115,7 @@ class GenerateCampaignChunkJob implements ShouldQueue
 
         if (empty($validPosts)) {
             throw new \RuntimeException(
-                'LLM response contained no valid post items for chunk ' . $this->chunkNumber
+                'LLM response contained no valid post items for chunk '.$this->chunkNumber
             );
         }
 
@@ -120,10 +128,10 @@ class GenerateCampaignChunkJob implements ShouldQueue
         $platformList = implode(', ', $this->platforms);
         $weekPhase = min(4, $this->chunkNumber);
         $funnelText = match ($weekPhase) {
-            1 => "Week 1 (Awareness): The psychological goal is Pattern Interrupt & Problem Awareness. Focus on uncovering hidden mistakes, hidden costs, and the pain of the status quo.",
+            1 => 'Week 1 (Awareness): The psychological goal is Pattern Interrupt & Problem Awareness. Focus on uncovering hidden mistakes, hidden costs, and the pain of the status quo.',
             2 => "Week 2 (Education): The psychological goal is Paradigm Shift & Education. Focus on destroying industry myths, telling personal stories of failure/learning, and revealing 'what they don't know'.",
-            3 => "Week 3 (Trust): The psychological goal is Social Proof & Solution Frameworks. Focus on actionable steps, systems, case studies, and building authority.",
-            default => "Week 4 (Conversion): The psychological goal is Urgency & Action. Focus on the cost of inaction, scarcity, immediate next steps, and strong conviction."
+            3 => 'Week 3 (Trust): The psychological goal is Social Proof & Solution Frameworks. Focus on actionable steps, systems, case studies, and building authority.',
+            default => 'Week 4 (Conversion): The psychological goal is Urgency & Action. Focus on the cost of inaction, scarcity, immediate next steps, and strong conviction.'
         };
         $diversitySeed = ($this->campaignId * 10) + $this->chunkNumber;
 
@@ -276,7 +284,7 @@ class GenerateCampaignChunkJob implements ShouldQueue
         </chain_of_thought_mandate>
 
         Create exactly 1 Master Post for each day from Day {$this->startDay} to {$this->endDay}.
-        Total Master Posts to generate: " . ($this->endDay - $this->startDay + 1) . "
+        Total Master Posts to generate: ".($this->endDay - $this->startDay + 1)."
 
         CRITICAL INSTRUCTION: You MUST generate ALL post content in the specified Output Language: {$campaign->language}. The '_internal_analysis' can be in English, but the 'content' and 'first_reply_content' MUST be in {$campaign->language}.
         Return ONLY a valid JSON object with EXACTLY TWO keys in this specific order:
@@ -290,7 +298,7 @@ class GenerateCampaignChunkJob implements ShouldQueue
 
     private function buildAutonomySection(float $level): string
     {
-        $strictness = match(true) {
+        $strictness = match (true) {
             $level <= 0.2 => 'MINIMAL: You may make ONLY 1 slight lateral suggestion about audience or angle.',
             $level <= 0.5 => 'MODERATE: You may infer up to 2 lateral audiences AND 2 hidden angles that the user did not mention. But you must STILL prioritize the user\'s stated inputs.',
             $level <= 0.8 => 'AGGRESSIVE: You may infer up to 4 lateral audiences AND 4 hidden pain points. Split posts 50/50 between user-stated and AI-inferred angles.',
@@ -362,7 +370,8 @@ class GenerateCampaignChunkJob implements ShouldQueue
             $result .= "          → CTA STYLE: {$ctas[$ctaIdx]}\n\n";
         }
 
-        $result .= "        </per_day_blueprint>";
+        $result .= '        </per_day_blueprint>';
+
         return $result;
     }
 
@@ -370,7 +379,7 @@ class GenerateCampaignChunkJob implements ShouldQueue
     {
         // Inherit the demo flag from the parent campaign so every post
         // is uniformly marked and the publishing cron can skip them.
-        $campaignIsDemo = \App\Models\Campaign::where('id', $this->campaignId)->value('is_demo') ?? false;
+        $campaignIsDemo = Campaign::where('id', $this->campaignId)->value('is_demo') ?? false;
 
         $postsData = [];
         foreach ($posts as $postData) {
@@ -378,7 +387,7 @@ class GenerateCampaignChunkJob implements ShouldQueue
 
             // SECURITY FIX 9-A: Use tomorrow as base to avoid scheduling posts in the past
             // when a campaign is created late at night.
-            $scheduledAt = \Carbon\Carbon::tomorrow($this->timezone)
+            $scheduledAt = Carbon::tomorrow($this->timezone)
                 ->startOfDay()
                 ->addDays($dayNumber - 1)
                 ->addHours(9)
@@ -398,8 +407,8 @@ class GenerateCampaignChunkJob implements ShouldQueue
             ];
         }
 
-        if (!empty($postsData)) {
-            \Illuminate\Support\Facades\DB::transaction(function () use ($postsData) {
+        if (! empty($postsData)) {
+            DB::transaction(function () use ($postsData) {
                 Post::insert($postsData);
             }, 3, ['IMMEDIATE']);
         }
@@ -424,15 +433,15 @@ class GenerateCampaignChunkJob implements ShouldQueue
      */
     public function failed(\Throwable $exception): void
     {
-        $campaign = \App\Models\Campaign::find($this->campaignId);
-        if (!$campaign) {
+        $campaign = Campaign::find($this->campaignId);
+        if (! $campaign) {
             return;
         }
 
         $platformCount = is_array($this->platforms) ? count($this->platforms) : 1;
         $expectedPosts = ($this->endDay - $this->startDay + 1) * $platformCount;
 
-        \Illuminate\Support\Facades\Log::warning('GenerateCampaignChunkJob permanently failed', [
+        Log::warning('GenerateCampaignChunkJob permanently failed', [
             'campaign_id' => $this->campaignId,
             'chunk_number' => $this->chunkNumber,
             'total_chunks' => $this->totalChunks,
@@ -440,18 +449,18 @@ class GenerateCampaignChunkJob implements ShouldQueue
             'start_day' => $this->startDay,
             'end_day' => $this->endDay,
             'platforms' => $this->platforms,
-            'error' => \Illuminate\Support\Str::limit($exception->getMessage(), 250),
+            'error' => Str::limit($exception->getMessage(), 250),
         ]);
 
         // Atomically decrement the campaign's expected_post_count so we can
         // measure under-delivery vs. credit charged. Use a guarded UPDATE so
         // concurrent chunk failures can't drive the counter below zero.
-        \Illuminate\Support\Facades\DB::table('campaigns')
+        DB::table('campaigns')
             ->where('id', $this->campaignId)
             ->where('expected_post_count', '>=', $expectedPosts)
             ->update([
-                'expected_post_count' => \Illuminate\Support\Facades\DB::raw('expected_post_count - ' . (int) $expectedPosts),
-                'error_message' => 'Chunk ' . $this->chunkNumber . ' failed after retries: ' . \Illuminate\Support\Str::limit($exception->getMessage(), 200),
+                'expected_post_count' => DB::raw('expected_post_count - '.(int) $expectedPosts),
+                'error_message' => 'Chunk '.$this->chunkNumber.' failed after retries: '.Str::limit($exception->getMessage(), 200),
                 'updated_at' => now(),
             ]);
 
@@ -460,13 +469,13 @@ class GenerateCampaignChunkJob implements ShouldQueue
         // happens in GenerateCampaignJob's batch catch handler.
         $user = $campaign->project?->user;
         if ($user) {
-            \App\Models\CreditTransaction::create([
+            CreditTransaction::create([
                 'type' => 'partial_refund_marker',
                 'amount' => 0,
                 'balance_after' => $user->campaign_credits,
                 'description' => "Chunk {$this->chunkNumber} failed; expected {$expectedPosts} posts not delivered",
-                'idempotency_key' => 'chunk_fail_' . $this->campaignId . '_' . $this->chunkNumber . '_' . now()->timestamp,
-                'reference_type' => \App\Models\Campaign::class,
+                'idempotency_key' => 'chunk_fail_'.$this->campaignId.'_'.$this->chunkNumber.'_'.now()->timestamp,
+                'reference_type' => Campaign::class,
                 'reference_id' => $this->campaignId,
                 'metadata' => [
                     'chunk_number' => $this->chunkNumber,
@@ -474,7 +483,7 @@ class GenerateCampaignChunkJob implements ShouldQueue
                     'start_day' => $this->startDay,
                     'end_day' => $this->endDay,
                     'platforms' => $this->platforms,
-                    'error' => \Illuminate\Support\Str::limit($exception->getMessage(), 250),
+                    'error' => Str::limit($exception->getMessage(), 250),
                 ],
             ]);
         }

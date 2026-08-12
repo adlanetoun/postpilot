@@ -17,6 +17,7 @@ use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Collection;
 
@@ -126,7 +127,7 @@ class CreditTransactionResource extends Resource
                             ->when($data['from'] ?? null, fn ($q, $date) => $q->whereDate('created_at', '>=', $date))
                             ->when($data['to'] ?? null, fn ($q, $date) => $q->whereDate('created_at', '<=', $date));
                     }),
-                \Filament\Tables\Filters\TernaryFilter::make('flagged_for_review')
+                TernaryFilter::make('flagged_for_review')
                     ->label('Review Status')
                     ->placeholder('All transactions')
                     ->trueLabel('Flagged only')

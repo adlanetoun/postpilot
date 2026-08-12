@@ -2,14 +2,18 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\ProcessDataDeletion;
+use App\Models\DataDeletionRequest;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 
 class FacebookDataDeletionController extends Controller
 {
     public function handle(Request $request)
     {
         $signedRequest = $request->input('signed_request');
-        if (!$signedRequest) {
+        if (! $signedRequest) {
             return response()->json(['error' => 'Missing signed_request'], 400);
         }
 
@@ -23,44 +27,45 @@ class FacebookDataDeletionController extends Controller
         // Decode payload
         $data = json_decode($this->base64UrlDecode($payload), true);
 
-        if (!$data || !isset($data['user_id'])) {
+        if (! $data || ! isset($data['user_id'])) {
             return response()->json(['error' => 'Invalid payload'], 400);
         }
 
         // Verify signature
         $expectedSig = hash_hmac('sha256', $payload, $secret, true);
-        if (!hash_equals($expectedSig, $sig)) {
-            \Illuminate\Support\Facades\Log::error('Invalid Facebook Data Deletion Signature');
+        if (! hash_equals($expectedSig, $sig)) {
+            Log::error('Invalid Facebook Data Deletion Signature');
+
             return response()->json(['error' => 'Bad signature'], 400);
         }
 
         // Generate confirmation code
-        $confirmationCode = \Illuminate\Support\Str::random(20);
+        $confirmationCode = Str::random(20);
 
         // Save request to database
-        \App\Models\DataDeletionRequest::create([
+        DataDeletionRequest::create([
             'provider' => 'facebook',
             'provider_user_id' => $data['user_id'],
             'confirmation_code' => $confirmationCode,
-            'status' => 'pending'
+            'status' => 'pending',
         ]);
 
         // Dispatch Job
-        \App\Jobs\ProcessDataDeletion::dispatch('facebook', $data['user_id'], $confirmationCode);
+        ProcessDataDeletion::dispatch('facebook', $data['user_id'], $confirmationCode);
 
         // Return expected JSON response
         return response()->json([
             'url' => route('socials.facebook.data-deletion-status', ['code' => $confirmationCode]),
-            'confirmation_code' => $confirmationCode
+            'confirmation_code' => $confirmationCode,
         ]);
     }
 
     public function status($code)
     {
-        $deletionRequest = \App\Models\DataDeletionRequest::where('confirmation_code', $code)->firstOrFail();
-        
+        $deletionRequest = DataDeletionRequest::where('confirmation_code', $code)->firstOrFail();
+
         return view('socials.data-deletion-status', [
-            'request' => $deletionRequest
+            'request' => $deletionRequest,
         ]);
     }
 

@@ -4,14 +4,16 @@ namespace App\Services\SocialMedia;
 
 use App\Contracts\SocialMediaPublisherInterface;
 use App\DTOs\PostContentDTO;
-use Illuminate\Support\Facades\Http;
-use Illuminate\Http\Client\RequestException;
 use Exception;
+use Illuminate\Http\Client\RequestException;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use RuntimeException;
 
 class PostPeerAdapter implements SocialMediaPublisherInterface
 {
     protected string $baseUrl;
+
     protected string $apiKey;
 
     public function __construct()
@@ -34,13 +36,13 @@ class PostPeerAdapter implements SocialMediaPublisherInterface
         ]);
 
         if ($response->failed()) {
-            throw new Exception('Failed to create PostPeer profile: ' . $response->body());
+            throw new Exception('Failed to create PostPeer profile: '.$response->body());
         }
 
         $data = $response->json();
 
         // Log the full response so we can see PostPeer's actual structure
-        \Illuminate\Support\Facades\Log::info('PostPeer createProfile response', ['response' => $data]);
+        Log::info('PostPeer createProfile response', ['response' => $data]);
 
         // Try common key names for the profile ID
         // PostPeer's actual response: { success: true, profile: { id: '...' } }
@@ -50,7 +52,7 @@ class PostPeerAdapter implements SocialMediaPublisherInterface
             ?? ($data['data']['id'] ?? null);
 
         if (empty($profileId)) {
-            throw new Exception('PostPeer returned success but no profile ID found in response: ' . json_encode($data));
+            throw new Exception('PostPeer returned success but no profile ID found in response: '.json_encode($data));
         }
 
         return (string) $profileId;
@@ -70,14 +72,14 @@ class PostPeerAdapter implements SocialMediaPublisherInterface
         ])->get("{$this->baseUrl}/connect/{$platform}", $queryParams);
 
         if ($response->failed()) {
-            throw new Exception("Failed to get PostPeer connect URL for {$platform}: " . $response->body());
+            throw new Exception("Failed to get PostPeer connect URL for {$platform}: ".$response->body());
         }
 
         $data = $response->json();
         $url = $data['url'] ?? $data['connectUrl'] ?? null;
 
         if (empty($url)) {
-            throw new Exception("PostPeer returned success but no URL found: " . json_encode($data));
+            throw new Exception('PostPeer returned success but no URL found: '.json_encode($data));
         }
 
         return $url;
@@ -92,7 +94,7 @@ class PostPeerAdapter implements SocialMediaPublisherInterface
         ]);
 
         if ($response->failed()) {
-            throw new \RuntimeException('PostPeer API error: ' . $response->status() . ' — ' . $response->body());
+            throw new RuntimeException('PostPeer API error: '.$response->status().' — '.$response->body());
         }
 
         return $response->json('integrations') ?? [];

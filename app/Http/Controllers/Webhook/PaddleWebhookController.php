@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers\Webhook;
 
-use Laravel\Paddle\Http\Controllers\WebhookController as CashierWebhookController;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Laravel\Paddle\Http\Controllers\WebhookController as CashierWebhookController;
 
 class PaddleWebhookController extends CashierWebhookController
 {
@@ -75,13 +75,13 @@ class PaddleWebhookController extends CashierWebhookController
             $user->addCampaignCredits(
                 $credits,
                 'purchase',
-                'Paddle Transaction ' . ($transactionId ?? ''),
+                'Paddle Transaction '.($transactionId ?? ''),
                 $transactionId,
                 'paddle_transaction'
             );
             Log::info("Granted {$credits} credits to user {$user->id} ({$user->email}) via Paddle transaction {$transactionId}.");
         } else {
-            Log::warning("Could not grant Paddle credits — User or Credits unresolved.", [
+            Log::warning('Could not grant Paddle credits — User or Credits unresolved.', [
                 'user_found' => (bool) $user,
                 'credits' => $credits,
                 'transaction_id' => $transactionId,

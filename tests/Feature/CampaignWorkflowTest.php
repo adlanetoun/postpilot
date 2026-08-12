@@ -7,6 +7,8 @@ use App\Models\Post;
 use App\Models\Project;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\URL;
+use Laravel\Socialite\Facades\Socialite;
 use Tests\TestCase;
 
 class CampaignWorkflowTest extends TestCase
@@ -38,12 +40,12 @@ class CampaignWorkflowTest extends TestCase
         $provider->shouldReceive('redirect')->andReturn(redirect('https://linkedin.com/oauth'));
         $provider->shouldReceive('user')->andReturn($oauthUser);
 
-        \Laravel\Socialite\Facades\Socialite::shouldReceive('driver')
+        Socialite::shouldReceive('driver')
             ->with('linkedin')
             ->andReturn($provider);
 
         // 1. Redirect to provider via signed route
-        $url = \Illuminate\Support\Facades\URL::signedRoute('social-accounts.connect', ['project' => $project->id, 'platform' => 'linkedin']);
+        $url = URL::signedRoute('social-accounts.connect', ['project' => $project->id, 'platform' => 'linkedin']);
         $response = $this->actingAs($user)->get($url);
 
         // Since postpeer isn't mocked in this basic test, it returns view or redirect; just verify it passed auth/signature check (not 403)
@@ -112,7 +114,7 @@ class CampaignWorkflowTest extends TestCase
             ->post(route('campaigns.approve', $campaign->id));
 
         $response->assertRedirect(route('projects.show', $project->id));
-        
+
         $campaign->refresh();
         $this->assertEquals('active', $campaign->status);
 
@@ -121,7 +123,7 @@ class CampaignWorkflowTest extends TestCase
 
         $this->assertEquals('approved', $post1->status);
         $this->assertEquals('approved', $post2->status);
-        
+
         $this->assertNotNull($post1->scheduled_at);
         $this->assertNotNull($post2->scheduled_at);
 

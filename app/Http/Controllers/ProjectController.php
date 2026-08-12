@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Project;
 use App\Models\Campaign;
-use App\Jobs\GenerateCampaignJob;
+use App\Models\Project;
+use Illuminate\Contracts\Cache\LockTimeoutException;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 
 class ProjectController extends Controller
@@ -21,8 +21,8 @@ class ProjectController extends Controller
         $user = $request->user();
 
         // SECURITY FIX: Prevent Race Conditions using Cache Lock
-        $lock = Cache::lock('project_create_user_' . $user->id, 10);
-        
+        $lock = Cache::lock('project_create_user_'.$user->id, 10);
+
         try {
             $lock->block(5);
 
@@ -42,7 +42,7 @@ class ProjectController extends Controller
                         if ($user->projects()->where('name', $value)->exists()) {
                             $fail('You already have a project with this name. Please choose a unique name.');
                         }
-                    }
+                    },
                 ],
             ]);
 
@@ -54,8 +54,8 @@ class ProjectController extends Controller
             // Redirect to the Project Dashboard to complete setup (connect socials)
             return redirect()->route('projects.show', $project->id)
                 ->with('success', 'Project created! Please connect your social accounts to proceed.');
-                
-        } catch (\Illuminate\Contracts\Cache\LockTimeoutException $e) {
+
+        } catch (LockTimeoutException $e) {
             return redirect()->route('dashboard')->with('error', 'System is busy processing another request. Please try again.');
         } finally {
             $lock?->release();
@@ -68,9 +68,11 @@ class ProjectController extends Controller
     public function show(Project $project)
     {
         Gate::authorize('view', $project);
-        
-        $project->load(['campaigns' => function($q) { $q->latest(); }, 'socialAccounts']);
-        
+
+        $project->load(['campaigns' => function ($q) {
+            $q->latest();
+        }, 'socialAccounts']);
+
         $campaign = $project->campaigns->first();
         $connectedPlatforms = $project->socialAccounts->pluck('provider')->toArray();
 
@@ -87,7 +89,7 @@ class ProjectController extends Controller
                 $posts = $campaign->posts;
             }
         }
-        
+
         return view('projects.show', compact('project', 'campaign', 'state', 'posts', 'connectedPlatforms'));
     }
 

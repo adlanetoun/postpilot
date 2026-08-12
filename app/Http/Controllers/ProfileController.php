@@ -6,6 +6,7 @@ use App\Http\Requests\ProfileUpdateRequest;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
 
@@ -17,7 +18,7 @@ class ProfileController extends Controller
     public function edit(Request $request): View
     {
         if (config('app.oauth_debug', false)) {
-            \Illuminate\Support\Facades\Log::info('ProfileController::edit page hit!', [
+            Log::info('ProfileController::edit page hit!', [
                 'method' => $request->method(),
                 'url' => $request->fullUrl(),
                 'query' => $request->all(),

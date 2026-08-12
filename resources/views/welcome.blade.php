@@ -47,6 +47,7 @@
                     <!-- Center: Navigation Links -->
                     <div class="hidden md:flex items-center space-x-8 absolute left-1/2 -translate-x-1/2">
                         <a href="#" class="text-[13px] font-bold text-black tracking-wide">Home</a>
+                        <a href="{{ route('tools.index') }}" class="text-[13px] font-medium text-gray-500 hover:text-black transition-colors tracking-wide">Tools</a>
                         <a href="#features" class="text-[13px] font-medium text-gray-500 hover:text-black transition-colors tracking-wide">Features</a>
                         <a href="#how-it-works" class="text-[13px] font-medium text-gray-500 hover:text-black transition-colors tracking-wide">How it Works</a>
                         <a href="#pricing" class="text-[13px] font-medium text-gray-500 hover:text-black transition-colors tracking-wide">Pricing</a>

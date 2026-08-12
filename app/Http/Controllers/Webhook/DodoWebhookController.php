@@ -10,46 +10,46 @@ use Illuminate\Support\Facades\Log;
 
 class DodoWebhookController extends Controller
 {
-    public function handle(Request $request) 
+    public function handle(Request $request)
     {
         $payload = $request->getContent();
-        
+
         // Dodo Payments uses Standard Webhooks (Svix) headers
         $msgId = $request->header('webhook-id') ?? $request->header('svix-id');
         $msgTimestamp = $request->header('webhook-timestamp') ?? $request->header('svix-timestamp');
         $signatureHeader = $request->header('webhook-signature') ?? $request->header('svix-signature') ?? $request->header('X-Dodo-Signature');
-        
+
         $secret = config('services.dodo.webhook_secret');
-        
+
         // Log headers for debugging incoming webhooks
         Log::info('Dodo Webhook received.', [
             'webhook_id' => $msgId,
             'webhook_timestamp' => $msgTimestamp,
-            'has_signature' => !empty($signatureHeader),
+            'has_signature' => ! empty($signatureHeader),
             'environment' => app()->environment(),
         ]);
 
-        if (!empty($secret) && !empty($signatureHeader) && !empty($msgId) && !empty($msgTimestamp)) {
+        if (! empty($secret) && ! empty($signatureHeader) && ! empty($msgId) && ! empty($msgTimestamp)) {
             $isValid = $this->verifySvixSignature($msgId, $msgTimestamp, $payload, $secret, $signatureHeader);
-            
-            if (!$isValid) {
+
+            if (! $isValid) {
                 Log::warning('Dodo Webhook Signature Verification Failed', [
                     'ip' => $request->ip(),
                     'msg_id' => $msgId,
                     'signature_header' => $signatureHeader,
                 ]);
 
-                if (!app()->environment('local')) {
+                if (! app()->environment('local')) {
                     abort(403, 'Invalid signature');
                 }
             } else {
                 Log::info('Dodo Webhook Signature Verified Successfully.');
             }
         } else {
-            if (!app()->environment('local')) {
+            if (! app()->environment('local')) {
                 Log::critical('Missing Webhook Secret or required Svix headers in production.', [
-                    'secret_present' => !empty($secret),
-                    'signature_present' => !empty($signatureHeader),
+                    'secret_present' => ! empty($secret),
+                    'signature_present' => ! empty($signatureHeader),
                 ]);
                 abort(403, 'Missing signature headers');
             } else {
@@ -73,7 +73,7 @@ class DodoWebhookController extends Controller
 
         // 3. Dispatch Job
         ProcessDodoWebhookJob::dispatch($webhookLog);
-        
+
         // 4. Return 200 OK IMMEDIATELY
         return response()->json(['status' => 'received'], 200);
     }

@@ -47,9 +47,9 @@ class AuditRevenueLeakage extends Command
         $revenuePerCredit = (float) $this->option('revenue-per-credit');
         $since = now()->subHours($windowHours);
 
-        $this->info("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+        $this->info('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
         $this->info(" Revenue Leakage Audit — last {$windowHours}h");
-        $this->info("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+        $this->info('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
         $this->line(" Threshold for warning: {$threshold}%");
         $this->line(" Revenue per credit:    \${$revenuePerCredit}");
         $this->line('');
@@ -65,7 +65,7 @@ class AuditRevenueLeakage extends Command
         // Each successful campaign = 5 chunks (one per week).
         $estimatedLlmCalls = $campaignsCompleted * 5;
 
-        $this->line("LLM pipeline activity:");
+        $this->line('LLM pipeline activity:');
         $this->line("  Campaigns completed:  {$campaignsCompleted}");
         $this->line("  Estimated LLM calls:  {$estimatedLlmCalls}  (5 chunks per 30-day campaign)");
         $this->line('');
@@ -81,7 +81,7 @@ class AuditRevenueLeakage extends Command
         // 1.5 platforms per call (omnichannel posts fan out).
         $estimatedPostpeerCalls = (int) ceil($postpeerCalls * 1.5);
 
-        $this->line("Social API activity:");
+        $this->line('Social API activity:');
         $this->line("  Posts published:      {$postpeerCalls}");
         $this->line("  Estimated PostPeer:   {$estimatedPostpeerCalls}  (1.5 platforms/post avg)");
         $this->line('');
@@ -94,7 +94,7 @@ class AuditRevenueLeakage extends Command
 
         $creditsConsumed = abs($creditsConsumed);
 
-        $this->line("Credit consumption:");
+        $this->line('Credit consumption:');
         $this->line("  Credits consumed:     {$creditsConsumed}");
         $this->line('');
 
@@ -126,19 +126,19 @@ class AuditRevenueLeakage extends Command
             ? round(($leakedUsd / $expectedRevenue) * 100, 2)
             : 0.0;
 
-        $this->line("Revenue analysis:");
-        $this->line("  Expected revenue:     \$" . number_format($expectedRevenue, 2));
+        $this->line('Revenue analysis:');
+        $this->line('  Expected revenue:     $'.number_format($expectedRevenue, 2));
         $this->line("  Failed generations:   {$failedGenerations}");
-        $this->line("  Estimated LLM leak:   \$" . number_format($unbilledLlmConsumption, 2));
-        $this->line("  Estimated leak:       \$" . number_format($leakedUsd, 2));
+        $this->line('  Estimated LLM leak:   $'.number_format($unbilledLlmConsumption, 2));
+        $this->line('  Estimated leak:       $'.number_format($leakedUsd, 2));
         $this->line("  Leakage:              {$leakagePct}%");
         $this->line('');
 
         // ── 6. WARNING / EXIT CODE ─────────────────────────────────────────
         if ($leakagePct > $threshold) {
-            $this->error("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+            $this->error('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
             $this->error(" ⚠️  LEAKAGE WARNING: {$leakagePct}% exceeds threshold ({$threshold}%)");
-            $this->error("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+            $this->error('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
 
             Log::warning('Revenue leakage audit exceeded threshold', [
                 'window_hours' => $windowHours,
@@ -153,7 +153,8 @@ class AuditRevenueLeakage extends Command
             return Command::FAILURE;
         }
 
-        $this->info("✓ Within acceptable leakage threshold.");
+        $this->info('✓ Within acceptable leakage threshold.');
+
         return Command::SUCCESS;
     }
 }

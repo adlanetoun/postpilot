@@ -4,9 +4,9 @@ namespace App\Services\SocialMedia;
 
 use App\Contracts\SocialMediaPublisherInterface;
 use App\DTOs\PostContentDTO;
+use Exception;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\RateLimiter;
-use Exception;
 
 class QuotaEnforcerDecorator implements SocialMediaPublisherInterface
 {
@@ -28,7 +28,7 @@ class QuotaEnforcerDecorator implements SocialMediaPublisherInterface
     public function publishPost(string $providerProfileId, PostContentDTO $post): array
     {
         // Create a unique key for this profile and the current month
-        $key = "social_posts_monthly_{$providerProfileId}_" . date('Y_m');
+        $key = "social_posts_monthly_{$providerProfileId}_".date('Y_m');
 
         // Check if the limit has been reached
         if (RateLimiter::tooManyAttempts($key, $this->maxPostsPerMonth)) {
@@ -45,7 +45,7 @@ class QuotaEnforcerDecorator implements SocialMediaPublisherInterface
             // FIX D-1: Decrement the counter instead of clearing it entirely.
             // clear() would reset the counter to 0, allowing abuse.
             // We use Cache::decrement() to atomically subtract 1 from the attempts.
-            $cacheKey = config('cache.prefix', '') . ':' . $key;
+            $cacheKey = config('cache.prefix', '').':'.$key;
             Cache::decrement($key);
 
             throw $e;

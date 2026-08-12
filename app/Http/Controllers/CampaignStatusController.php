@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Campaign;
-use Illuminate\Http\Request;
 
 class CampaignStatusController extends Controller
 {
