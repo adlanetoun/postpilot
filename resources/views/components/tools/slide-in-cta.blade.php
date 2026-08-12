@@ -1,6 +1,6 @@
 <div x-data="{ 
         show: false, 
-        dismissed: localStorage.getItem('postpilot_modal_v3_dismissed') === 'true',
+        dismissed: localStorage.getItem('postpilot_modal_v4_dismissed') === 'true',
         init() {
             if (!this.dismissed) {
                 setTimeout(() => {
@@ -11,7 +11,7 @@
         dismiss() {
             this.show = false;
             this.dismissed = true;
-            localStorage.setItem('postpilot_modal_v3_dismissed', 'true');
+            localStorage.setItem('postpilot_modal_v4_dismissed', 'true');
         }
     }" 
     x-cloak
@@ -20,7 +20,7 @@
     role="dialog"
     aria-modal="true">
 
-    <!-- Ambient backdrop blur -->
+    <!-- Backdrop -->
     <div x-show="show"
          x-transition:enter="transition ease-out duration-300"
          x-transition:enter-start="opacity-0"
@@ -29,66 +29,87 @@
          x-transition:leave-start="opacity-100"
          x-transition:leave-end="opacity-0"
          @click="dismiss"
-         class="fixed inset-0 bg-black/70 backdrop-blur-md"></div>
+         class="fixed inset-0 bg-black/60 backdrop-blur-sm"></div>
 
-    <!-- Modal Box (Dark Obsidian Modern Aesthetics) -->
+    <!-- Modal Card -->
     <div x-show="show"
-         x-transition:enter="transition ease-out duration-400"
-         x-transition:enter-start="opacity-0 scale-90 translate-y-6"
+         x-transition:enter="transition ease-out duration-500"
+         x-transition:enter-start="opacity-0 scale-95 translate-y-8"
          x-transition:enter-end="opacity-100 scale-100 translate-y-0"
          x-transition:leave="transition ease-in duration-200"
          x-transition:leave-start="opacity-100 scale-100 translate-y-0"
-         x-transition:leave-end="opacity-0 scale-90 translate-y-6"
-         class="relative w-full max-w-md bg-gray-950/95 border border-emerald-500/30 text-white rounded-3xl p-6 sm:p-8 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.9)] backdrop-blur-xl z-10 text-center overflow-hidden">
+         x-transition:leave-end="opacity-0 scale-95 translate-y-8"
+         class="relative w-full max-w-lg bg-white text-gray-900 overflow-hidden z-10 shadow-2xl">
         
-        <!-- Subtle Glow Effect -->
-        <div class="absolute -top-24 -left-24 w-48 h-48 bg-[#006c49]/30 rounded-full blur-3xl pointer-events-none"></div>
-        <div class="absolute -bottom-24 -right-24 w-48 h-48 bg-emerald-500/20 rounded-full blur-3xl pointer-events-none"></div>
+        <!-- Top Accent Bar -->
+        <div class="h-1 w-full bg-black"></div>
 
         <!-- Close Button -->
         <button @click="dismiss" 
-                class="absolute top-4 right-4 w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-gray-400 hover:text-white flex items-center justify-center transition-all focus:outline-none"
+                class="absolute top-5 right-5 w-8 h-8 flex items-center justify-center text-gray-400 hover:text-black transition-colors focus:outline-none group"
                 aria-label="Close">
-            <span class="material-symbols-outlined text-base">close</span>
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
         </button>
 
-        <!-- Badge -->
-        <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-[11px] font-mono font-bold tracking-wider uppercase mb-5">
-            <span class="relative flex h-2 w-2">
-                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-            </span>
-            <span>POSTPILOT AUTOPILOT</span>
+        <!-- Content -->
+        <div class="px-8 pt-8 pb-6 sm:px-10 sm:pt-10">
+
+            <!-- Badge -->
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 mb-6">
+                <span class="relative flex h-2 w-2">
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                </span>
+                <span class="text-[10px] font-extrabold text-emerald-900 tracking-widest uppercase font-mono">Autopilot Engine</span>
+            </div>
+
+            <!-- Headline -->
+            <h3 class="text-[28px] sm:text-[34px] font-extrabold text-black tracking-tight leading-[1.1] mb-4">
+                Stop posting manually.<br/>
+                <span class="text-gray-400">Automate 30 days.</span>
+            </h3>
+
+            <!-- Subtitle -->
+            <p class="text-[15px] text-gray-500 font-medium leading-relaxed mb-8 max-w-sm">
+                Generate and auto-schedule <span class="text-black font-bold">a full month of content</span> for LinkedIn, X & Facebook in under 2 minutes.
+            </p>
+
+            <!-- Social Proof Stats -->
+            <div class="grid grid-cols-3 gap-4 mb-8 border-t border-b border-gray-100 py-5">
+                <div class="text-center">
+                    <div class="text-[22px] font-extrabold text-black tracking-tight">30</div>
+                    <div class="text-[10px] font-bold text-gray-400 uppercase tracking-wider font-mono">Days of Posts</div>
+                </div>
+                <div class="text-center border-l border-r border-gray-100">
+                    <div class="text-[22px] font-extrabold text-black tracking-tight">3</div>
+                    <div class="text-[10px] font-bold text-gray-400 uppercase tracking-wider font-mono">Platforms</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-[22px] font-extrabold text-black tracking-tight">&lt;2</div>
+                    <div class="text-[10px] font-bold text-gray-400 uppercase tracking-wider font-mono">Minutes</div>
+                </div>
+            </div>
+
+            <!-- CTA Button -->
+            <a href="{{ url('/register') }}?utm_source=free_tools&utm_medium=popup_modal&utm_campaign=plg_conversion" 
+               onclick="gtag('event', 'click', { event_category: 'CTA', event_label: 'PLG Modal v4', value: 1 })"
+               class="group w-full inline-flex items-center justify-center gap-3 bg-black hover:bg-gray-800 text-white font-extrabold text-[15px] py-4 px-6 tracking-wide transition-all duration-200">
+                <span>Start Free Trial</span>
+                <svg class="w-4 h-4 transition-transform duration-200 group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                </svg>
+            </a>
         </div>
 
-        <!-- Main Headline -->
-        <h3 class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight leading-snug mb-3">
-            Put your social media on autopilot.
-        </h3>
-
-        <!-- Subtitle -->
-        <p class="text-sm text-gray-300 font-normal leading-relaxed mb-6">
-            Stop creating posts one by one. Generate and auto-schedule <span class="text-emerald-400 font-semibold">30 days of high-converting content</span> for LinkedIn, X & Facebook in under 2 minutes.
-        </p>
-
-        <!-- Value Highlight Pill -->
-        <div class="mb-6 py-2 px-4 bg-white/5 border border-white/10 rounded-xl inline-flex items-center gap-2 text-xs text-gray-300 font-medium">
-            <span class="material-symbols-outlined text-emerald-400 text-sm">verified</span>
-            <span>14-Day Free Trial • No Credit Card Required</span>
+        <!-- Footer -->
+        <div class="px-8 pb-6 sm:px-10 flex items-center justify-between">
+            <span class="text-[11px] font-bold text-gray-400 uppercase tracking-wider font-mono">14-day free trial • No card required</span>
+            <button @click="dismiss" 
+                    class="text-[11px] font-bold text-gray-400 hover:text-black uppercase tracking-wider font-mono transition-colors">
+                Skip →
+            </button>
         </div>
-
-        <!-- Primary High-Converting CTA Button -->
-        <a href="{{ url('/register') }}?utm_source=free_tools&utm_medium=popup_modal&utm_campaign=plg_conversion" 
-           onclick="gtag('event', 'click', { event_category: 'CTA', event_label: 'Dark Modal PLG Popup', value: 1 })"
-           class="w-full inline-flex items-center justify-center gap-2.5 bg-gradient-to-r from-[#006c49] to-emerald-600 hover:from-emerald-600 hover:to-[#006c49] text-white font-extrabold text-base py-4 px-6 rounded-2xl shadow-[0_10px_30px_rgba(0,108,73,0.5)] hover:shadow-[0_15px_35px_rgba(0,108,73,0.7)] transition-all duration-300 transform hover:-translate-y-0.5 mb-3">
-            <span>Start Free Trial</span>
-            <span class="material-symbols-outlined text-lg">arrow_forward</span>
-        </a>
-
-        <!-- Secondary Link -->
-        <button @click="dismiss" 
-                class="text-xs font-semibold text-gray-400 hover:text-white transition-colors py-1">
-            Continue to free tool
-        </button>
     </div>
 </div>
