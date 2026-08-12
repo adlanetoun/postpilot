@@ -14,8 +14,8 @@
         <!-- Schema.org WebSite Markup for Site Name in Google -->
         <script type="application/ld+json">
         {
-          "@context": "https://schema.org",
-          "@type": "WebSite",
+          "@@context": "https://schema.org",
+          "@@type": "WebSite",
           "name": "PostPilot",
           "alternateName": ["PostPilot AI"],
           "url": "{{ url('/') }}"
