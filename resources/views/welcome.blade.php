@@ -4,9 +4,23 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
-        <title>{{ config('app.name', 'PostPilot') }}</title>
+        <title>{{ config('app.name', 'PostPilot') }} - 30 Days of Content Published On Autopilot</title>
+        <meta name="description" content="PostPilot automatically generates, formats, and schedules a full month of social media posts for LinkedIn, X (Twitter), and Facebook.">
+        <link rel="canonical" href="{{ url()->current() }}">
+
         <link rel="icon" type="image/svg+xml" href="{{ asset('favicon.svg') }}?v=4">
         <link rel="shortcut icon" href="{{ asset('favicon.svg') }}?v=4">
+
+        <!-- Schema.org WebSite Markup for Site Name in Google -->
+        <script type="application/ld+json">
+        {
+          "@context": "https://schema.org",
+          "@type": "WebSite",
+          "name": "PostPilot",
+          "alternateName": ["PostPilot AI"],
+          "url": "{{ url('/') }}"
+        }
+        </script>
 
         <!-- Google Fonts: Inter and Manrope -->
         <link rel="preconnect" href="https://fonts.googleapis.com">

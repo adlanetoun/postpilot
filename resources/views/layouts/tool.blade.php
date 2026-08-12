@@ -40,11 +40,20 @@
         <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
         <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
 
-        <!-- Schema.org SoftwareApplication Markup -->
+        <!-- Schema.org WebSite & SoftwareApplication Markup -->
         <script type="application/ld+json">
         {
           "@@context": "https://schema.org",
-          "@type": "SoftwareApplication",
+          "@@type": "WebSite",
+          "name": "PostPilot",
+          "url": "{{ route('home') }}"
+        }
+        </script>
+
+        <script type="application/ld+json">
+        {
+          "@@context": "https://schema.org",
+          "@@type": "SoftwareApplication",
           "name": "@yield('tool_name', 'Free Social Media Tool')",
           "description": "@yield('meta_description', 'Free social media tool by PostPilot.')",
           "url": "{{ url()->current() }}",
@@ -52,17 +61,17 @@
           "operatingSystem": "Web Browser",
           "browserRequirements": "Requires JavaScript. Works in all modern browsers.",
           "author": {
-            "@type": "Organization",
+            "@@type": "Organization",
             "name": "PostPilot",
             "url": "{{ route('home') }}"
           },
           "offers": {
-            "@type": "Offer",
+            "@@type": "Offer",
             "price": "0",
             "priceCurrency": "USD"
           },
           "aggregateRating": {
-            "@type": "AggregateRating",
+            "@@type": "AggregateRating",
             "ratingValue": "4.8",
             "ratingCount": "127",
             "bestRating": "5",
