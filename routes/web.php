@@ -32,6 +32,52 @@ Route::get('/', function () {
     return view('welcome');
 })->name('home');
 
+// Dynamic XML Sitemap for SEO & Search Console
+Route::get('/sitemap.xml', function () {
+    $urls = [
+        ['url' => url('/'), 'priority' => '1.0', 'changefreq' => 'daily'],
+        ['url' => route('tools.index'), 'priority' => '0.9', 'changefreq' => 'daily'],
+        ['url' => route('tools.linkedin-preview'), 'priority' => '0.8', 'changefreq' => 'weekly'],
+        ['url' => route('tools.twitter-thread-splitter'), 'priority' => '0.8', 'changefreq' => 'weekly'],
+        ['url' => route('tools.linkedin-bold-italic'), 'priority' => '0.8', 'changefreq' => 'weekly'],
+        ['url' => route('tools.social-character-counter'), 'priority' => '0.8', 'changefreq' => 'weekly'],
+        ['url' => route('tools.social-roi-calculator'), 'priority' => '0.8', 'changefreq' => 'weekly'],
+        ['url' => route('tools.linkedin-line-break'), 'priority' => '0.8', 'changefreq' => 'weekly'],
+        ['url' => route('tools.utm-builder'), 'priority' => '0.8', 'changefreq' => 'weekly'],
+        ['url' => route('tools.engagement-calculator'), 'priority' => '0.8', 'changefreq' => 'weekly'],
+        ['url' => route('tools.linkedin-hooks'), 'priority' => '0.8', 'changefreq' => 'weekly'],
+        ['url' => route('tools.content-calendar-template'), 'priority' => '0.8', 'changefreq' => 'weekly'],
+        ['url' => route('legal.terms'), 'priority' => '0.3', 'changefreq' => 'monthly'],
+        ['url' => route('legal.privacy'), 'priority' => '0.3', 'changefreq' => 'monthly'],
+        ['url' => route('legal.refunds'), 'priority' => '0.3', 'changefreq' => 'monthly'],
+    ];
+
+    $modifiers = config('tool_modifiers', []);
+    foreach ($modifiers as $tool => $mods) {
+        foreach ($mods as $modSlug => $data) {
+            $urls[] = [
+                'url' => url("/tools/{$tool}/{$modSlug}"),
+                'priority' => '0.7',
+                'changefreq' => 'weekly',
+            ];
+        }
+    }
+
+    $xml = '<?xml version="1.0" encoding="UTF-8"?>';
+    $xml .= '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">';
+    foreach ($urls as $item) {
+        $xml .= '<url>';
+        $xml .= '<loc>' . htmlspecialchars($item['url']) . '</loc>';
+        $xml .= '<lastmod>' . date('Y-m-d') . '</lastmod>';
+        $xml .= '<changefreq>' . $item['changefreq'] . '</changefreq>';
+        $xml .= '<priority>' . $item['priority'] . '</priority>';
+        $xml .= '</url>';
+    }
+    $xml .= '</urlset>';
+
+    return response($xml, 200)->header('Content-Type', 'text/xml');
+})->name('sitemap');
+
 Route::get('/dashboard', [DashboardController::class, 'index'])
     ->middleware(['auth', 'verified'])
     ->name('dashboard');
