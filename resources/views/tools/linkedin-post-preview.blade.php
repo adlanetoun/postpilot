@@ -1,7 +1,7 @@
 @extends('layouts.tool')
 
-@section('title', 'Free LinkedIn Post Preview Tool [No Sign-Up] – See More Fold Checker | PostPilot')
-@section('meta_description', 'Preview exactly where LinkedIn truncates your post with the "see more" button. Free desktop & mobile simulator. No sign-up, no limits, instant results ➔')
+@section('title', $seo['title'] ?? 'Free LinkedIn Post Preview Tool [No Sign-Up] – See More Fold Checker | PostPilot')
+@section('meta_description', $seo['meta_description'] ?? 'Preview exactly where LinkedIn truncates your post with the "see more" button. Free desktop & mobile simulator. No sign-up, no limits, instant results ➔')
 @section('tool_name', 'Free LinkedIn Post Preview & See More Fold Checker')
 @section('tool_route', 'tools.linkedin-preview')
 
@@ -90,7 +90,7 @@
             <span class="font-mono text-xs text-[#006c49] uppercase tracking-wider font-extrabold">LINKEDIN TOOLS • 100% FREE &amp; CLIENT-SIDE</span>
         </div>
         <h1 class="text-3xl sm:text-4xl md:text-5xl font-extrabold text-black tracking-tight leading-tight font-sans text-center">
-            LinkedIn Post Preview &amp; Fold Checker
+            {{ $seo['h1'] ?? 'LinkedIn Post Preview & Fold Checker' }}
         </h1>
         <p class="text-base sm:text-lg text-gray-600 max-w-2xl font-medium leading-relaxed text-center font-sans">
             Preview how your LinkedIn posts will look on desktop &amp; mobile before publishing. Check the exact "...see more" fold cutoff, line breaks, formatting, and character limits.
@@ -100,7 +100,7 @@
     {{-- GEO / Answer-First Content --}}
     <div class="max-w-3xl mx-auto mb-8 px-4 sm:px-0">
         <p class="text-[15px] leading-relaxed text-gray-700 font-medium bg-white border border-gray-200 rounded-xl p-5 shadow-sm">
-            <strong>What is this tool?</strong> The LinkedIn Post Preview is a free utility that simulates how your post will render on desktop and mobile feeds before publishing. Content creators use it to eliminate awkward line breaks and prevent truncated hooks. By accurately previewing the "...see more" fold cutoff, it ensures your critical opening message drives maximum reader engagement.
+            <strong>What is this tool?</strong> {{ $seo['answer_first'] ?? 'The LinkedIn Post Preview is a free utility that simulates how your post will render on desktop and mobile feeds before publishing. Content creators use it to eliminate awkward line breaks and prevent truncated hooks. By accurately previewing the "...see more" fold cutoff, it ensures your critical opening message drives maximum reader engagement.' }}
         </p>
     </div>
 

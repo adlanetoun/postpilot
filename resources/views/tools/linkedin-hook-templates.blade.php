@@ -1,7 +1,7 @@
 @extends('layouts.tool')
 
-@section('title', 'Free LinkedIn Hook Templates [No Sign-Up] – 50+ Viral Opening Lines | PostPilot')
-@section('meta_description', 'Generate high-converting LinkedIn hooks that stop the scroll. 50+ proven templates for founders, marketers & creators. 100% free, no login required ➔')
+@section('title', $seo['title'] ?? 'Free LinkedIn Hook Templates [No Sign-Up] – 50+ Viral Opening Lines | PostPilot')
+@section('meta_description', $seo['meta_description'] ?? 'Generate high-converting LinkedIn hooks that stop the scroll. 50+ proven templates for founders, marketers & creators. 100% free, no login required ➔')
 @section('tool_name', 'Free LinkedIn Hook Generator Template Matrix')
 @section('tool_route', 'tools.linkedin-hooks')
 
@@ -71,7 +71,7 @@
             <span class="font-mono text-xs text-[#006c49] uppercase tracking-wider font-extrabold">LINKEDIN TOOLS • 100% FREE &amp; CLIENT-SIDE</span>
         </div>
         <h1 class="text-3xl sm:text-4xl md:text-5xl font-extrabold text-black tracking-tight leading-tight font-sans text-center">
-            LinkedIn Viral Hook Templates &amp; Generator
+            {{ $seo['h1'] ?? 'LinkedIn Viral Hook Templates & Generator' }}
         </h1>
         <p class="text-base sm:text-lg text-gray-600 max-w-2xl font-medium leading-relaxed text-center font-sans">
             Browse 25 battle-tested viral LinkedIn hook formulas across Contrarian, Story, Curiosity, Listicle, and Metric categories. Customize live with your topic, metrics, and year.
@@ -81,7 +81,7 @@
     {{-- GEO / Answer-First Content --}}
     <div class="max-w-3xl mx-auto mb-8 px-4 sm:px-0">
         <p class="text-[15px] leading-relaxed text-gray-700 font-medium bg-white border border-gray-200 rounded-xl p-5 shadow-sm">
-            <strong>What is this tool?</strong> The LinkedIn Hook Templates tool is a free utility that allows content creators, marketers, and founders to browse, filter, and customize battle-tested LinkedIn post openers. By inserting custom topics, metrics, and dates, it solves weak post engagement and low dwell time by crafting high-converting hooks that stop scrolling and encourage readers to click 'see more'.
+            <strong>What is this tool?</strong> {{ $seo['answer_first'] ?? 'The LinkedIn Hook Templates tool is a free utility that allows content creators, marketers, and founders to browse, filter, and customize battle-tested LinkedIn post openers. By inserting custom topics, metrics, and dates, it solves weak post engagement and low dwell time by crafting high-converting hooks that stop scrolling and encourage readers to click \'see more\'.' }}
         </p>
     </div>
 

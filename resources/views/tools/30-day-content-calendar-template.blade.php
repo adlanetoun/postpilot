@@ -1,7 +1,7 @@
 @extends('layouts.tool')
 
-@section('title', 'Free 30-Day Social Media Content Calendar [No Sign-Up] – AI-Powered | PostPilot')
-@section('meta_description', 'Plan a full month of LinkedIn, Twitter/X & Facebook content in minutes. Free AI-powered 30-day content calendar template. No sign-up required. Start ➔')
+@section('title', $seo['title'] ?? 'Free 30-Day Social Media Content Calendar [No Sign-Up] – AI-Powered | PostPilot')
+@section('meta_description', $seo['meta_description'] ?? 'Plan a full month of LinkedIn, Twitter/X & Facebook content in minutes. Free AI-powered 30-day content calendar template. No sign-up required. Start ➔')
 @section('tool_name', 'Free 30-Day Content Calendar Generator')
 @section('tool_route', 'tools.content-calendar-template')
 
@@ -77,7 +77,7 @@
             <span class="font-mono text-xs text-[#006c49] uppercase tracking-wider font-extrabold">PLANNING &amp; STRATEGY • 100% FREE &amp; CLIENT-SIDE</span>
         </div>
         <h1 class="text-3xl sm:text-4xl md:text-5xl font-extrabold text-black tracking-tight leading-tight font-sans text-center">
-            30-Day Content Matrix Calendar Generator
+            {{ $seo['h1'] ?? '30-Day Content Matrix Calendar Generator' }}
         </h1>
         <p class="text-base sm:text-lg text-gray-600 max-w-2xl font-medium leading-relaxed text-center font-sans">
             Generate a high-converting 30-day social media schedule engineered with the proven 40% Educational / 30% Proof / 20% Story / 10% Offer growth matrix with instant CSV export and 1-click copy.
@@ -87,7 +87,7 @@
     {{-- GEO / Answer-First Content --}}
     <div class="max-w-3xl mx-auto mb-8 px-4 sm:px-0">
         <p class="text-[15px] leading-relaxed text-gray-700 font-medium bg-white border border-gray-200 rounded-xl p-5 shadow-sm">
-            <strong>What is this tool?</strong> The 30-Day Content Calendar Template is a free utility that creates a complete monthly social media publishing strategy balanced across educational, proof, story, and offer content pillars. Content creators and marketers use it to eliminate planning burnout, maintain consistent posting habits, and convert followers into customers with instant CSV exports for scheduling tools.
+            <strong>What is this tool?</strong> {{ $seo['answer_first'] ?? 'The 30-Day Content Calendar Template is a free utility that creates a complete monthly social media publishing strategy balanced across educational, proof, story, and offer content pillars. Content creators and marketers use it to eliminate planning burnout, maintain consistent posting habits, and convert followers into customers with instant CSV exports for scheduling tools.' }}
         </p>
     </div>
 

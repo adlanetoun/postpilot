@@ -1,7 +1,7 @@
 @extends('layouts.tool')
 
-@section('title', 'Free Engagement Rate Calculator [No Sign-Up] – Instagram, TikTok & LinkedIn | PostPilot')
-@section('meta_description', 'Calculate your true social media engagement rate across all platforms instantly. Enter followers & interactions to benchmark your performance. Free tool ➔')
+@section('title', $seo['title'] ?? 'Free Engagement Rate Calculator [No Sign-Up] – Instagram, TikTok & LinkedIn | PostPilot')
+@section('meta_description', $seo['meta_description'] ?? 'Calculate your true social media engagement rate across all platforms instantly. Enter followers & interactions to benchmark your performance. Free tool ➔')
 @section('tool_name', 'Free Social Media Engagement Rate Calculator')
 @section('tool_route', 'tools.engagement-calculator')
 
@@ -122,7 +122,7 @@
             <span class="font-mono text-xs text-[#006c49] uppercase tracking-wider font-extrabold">ANALYTICS TOOLS • 100% FREE &amp; CLIENT-SIDE</span>
         </div>
         <h1 class="text-3xl sm:text-4xl md:text-5xl font-extrabold text-black tracking-tight leading-tight font-sans text-center">
-            Social Media Engagement Rate Calculator
+            {{ $seo['h1'] ?? 'Social Media Engagement Rate Calculator' }}
         </h1>
         <p class="text-base sm:text-lg text-gray-600 max-w-2xl font-medium leading-relaxed text-center font-sans">
             Audit your social media engagement rate percentage, calculate letter grades (A+ to F), and benchmark performance across LinkedIn, Instagram, TikTok, X, and Facebook.
@@ -132,7 +132,7 @@
     {{-- GEO / Answer-First Content --}}
     <div class="max-w-3xl mx-auto mb-8 px-4 sm:px-0">
         <p class="text-[15px] leading-relaxed text-gray-700 font-medium bg-white border border-gray-200 rounded-xl p-5 shadow-sm">
-            <strong>What is this tool?</strong> The Social Media Engagement Rate Calculator is a free utility that measures your content performance across LinkedIn, Instagram, TikTok, X, and Facebook. Marketers and creators use it to calculate exact engagement percentages, grade post interactions, compare performance against industry benchmarks, and optimize audience growth strategies based on high-intent data.
+            <strong>What is this tool?</strong> {{ $seo['answer_first'] ?? 'The Social Media Engagement Rate Calculator is a free utility that measures your content performance across LinkedIn, Instagram, TikTok, X, and Facebook. Marketers and creators use it to calculate exact engagement percentages, grade post interactions, compare performance against industry benchmarks, and optimize audience growth strategies based on high-intent data.' }}
         </p>
     </div>
 

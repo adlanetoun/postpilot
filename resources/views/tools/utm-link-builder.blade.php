@@ -1,7 +1,7 @@
 @extends('layouts.tool')
 
-@section('title', 'Free UTM Link Builder [No Sign-Up] – Track Any Campaign Instantly | PostPilot')
-@section('meta_description', 'Build UTM tracking URLs for Google Analytics in seconds. Track campaigns from TikTok, Instagram, email & more. 100% free UTM generator, no sign-up ➔')
+@section('title', $seo['title'] ?? 'Free UTM Link Builder [No Sign-Up] – Track Any Campaign Instantly | PostPilot')
+@section('meta_description', $seo['meta_description'] ?? 'Build UTM tracking URLs for Google Analytics in seconds. Track campaigns from TikTok, Instagram, email & more. 100% free UTM generator, no sign-up ➔')
 @section('tool_name', 'Free GA4 UTM Link Builder')
 @section('tool_route', 'tools.utm-builder')
 
@@ -43,7 +43,7 @@
             <span class="font-mono text-xs text-[#006c49] uppercase tracking-wider font-extrabold">ANALYTICS TOOLS • 100% FREE &amp; CLIENT-SIDE</span>
         </div>
         <h1 class="text-3xl sm:text-4xl md:text-5xl font-extrabold text-black tracking-tight leading-tight font-sans text-center">
-            GA4 UTM Link Builder &amp; Parameter Generator
+            {{ $seo['h1'] ?? 'GA4 UTM Link Builder & Parameter Generator' }}
         </h1>
         <p class="text-base sm:text-lg text-gray-600 max-w-2xl font-medium leading-relaxed text-center font-sans">
             Track marketing campaign performance in Google Analytics 4 with clean, error-free UTM links, automatic GA4 sanitization, instant platform presets, and instant QR codes.
@@ -53,7 +53,7 @@
     {{-- GEO / Answer-First Content --}}
     <div class="max-w-3xl mx-auto mb-8 px-4 sm:px-0">
         <p class="text-[15px] leading-relaxed text-gray-700 font-medium bg-white border border-gray-200 rounded-xl p-5 shadow-sm">
-            <strong>What is this tool?</strong> The UTM Link Builder is a free utility that generates custom tracking URLs formatted for Google Analytics 4 and other marketing analytics platforms. Digital marketers use it to add standardized utm_source, utm_medium, and utm_campaign parameters to landing page links, solving the problem of inconsistent campaign data, missing attribution, and broken reporting across promotional campaigns.
+            <strong>What is this tool?</strong> {{ $seo['answer_first'] ?? 'The UTM Link Builder is a free utility that generates custom tracking URLs formatted for Google Analytics 4 and other marketing analytics platforms. Digital marketers use it to add standardized utm_source, utm_medium, and utm_campaign parameters to landing page links, solving the problem of inconsistent campaign data, missing attribution, and broken reporting across promotional campaigns.' }}
         </p>
     </div>
 

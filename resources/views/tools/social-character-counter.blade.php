@@ -1,7 +1,7 @@
 @extends(request()->routeIs('embed.*') ? 'layouts.embed' : 'layouts.tool')
 
-@section('title', isset($seo) ? $seo['title'] : 'Free Social Media Character Counter [No Sign-Up] – All Platforms 2026 | PostPilot')
-@section('meta_description', isset($seo) ? $seo['meta_description'] : 'Check character limits for LinkedIn, X/Twitter, Instagram, Threads & Facebook in real-time. Free multi-platform counter, no login required. Start now ➔')
+@section('title', $seo['title'] ?? 'Free Social Media Character Counter [No Sign-Up] – All Platforms 2026 | PostPilot')
+@section('meta_description', $seo['meta_description'] ?? 'Check character limits for LinkedIn, X/Twitter, Instagram, Threads & Facebook in real-time. Free multi-platform counter, no login required. Start now ➔')
 @section('tool_name', 'Free Multi-Platform Social Character Counter')
 @section('tool_route', 'tools.social-character-counter')
 
@@ -13,31 +13,30 @@
                 'answer' => 'Character limits vary significantly across networks: X (Twitter) allows 280 characters for standard posts, Threads allows 500 characters, and Instagram captions allow up to 2,200 characters. LinkedIn permits up to 3,000 characters per post, while Facebook provides the largest post limit at 63,206 characters.'
             ],
             [
-                'question' => 'Does LinkedIn count emojis as multiple characters?',
-                'answer' => 'Yes, LinkedIn and most other social platforms count emojis as 2 to 4 characters because emojis use multi-byte UTF-16 Unicode encoding. Adding emojis to your LinkedIn posts will reduce your remaining character count faster than standard letters or numbers.'
+                'question' => 'Why does real-time character counting matter for social posts?',
+                'answer' => 'Exceeding character limits causes posts to be rejected or abruptly truncated by social algorithms. Real-time counting ensures your core message, call-to-action, and hashtags fit within platform boundaries without tedious manual revisions.'
             ],
             [
-                'question' => 'What is the difference between character count and word count?',
-                'answer' => 'Character count measures every individual letter, number, symbol, punctuation mark, emoji, and space in your text string. In contrast, word count measures the total number of distinct words separated by spaces or line breaks.'
+                'question' => 'How is estimated reading time calculated?',
+                'answer' => 'Reading time is calculated based on an average adult reading speed of 200 words per minute (WPM). This metric helps you gauge content scannability and audience attention span across fast-moving social feeds.'
             ],
             [
-                'question' => 'How does Twitter count URLs in character limits?',
-                'answer' => 'X (Twitter) automatically wraps all web links using its native t.co link shortening service. Regardless of how long or short the original URL is, every web link counts as exactly 23 characters toward your 280-character limit.'
+                'question' => 'Does this character counter store or log my text?',
+                'answer' => 'No. All text parsing, character calculations, and limit verifications run 100% client-side in your web browser using JavaScript. No draft content is ever transmitted, logged, or saved to our servers.'
             ],
             [
-                'question' => 'What is the optimal post length for LinkedIn engagement?',
-                'answer' => 'The optimal LinkedIn post length is between 150 and 250 words (approximately 1,000 to 1,500 characters) for maximum reach and engagement. Keep your main hook within the first 140 to 210 characters so it appears before the "...see more" feed fold line.'
-            ],
-            [
-                'question' => 'Does this tool track reading time?',
-                'answer' => 'Yes, our social media counter calculates estimated reading time based on an average reading speed of 200 words per minute. It also calculates speaking time at 130 words per minute, which is ideal for video captions, podcasts, and speech preparation.'
-            ],
+                'question' => 'What happens if my post exceeds the feed fold limit?',
+                'answer' => 'Platforms like LinkedIn and Instagram collapse lengthy posts behind a "see more" link after approximately 140–210 characters. Crafting an enticing hook within these initial limits is crucial to entice readers to expand your full post.'
+            ]
         ];
     @endphp
     <x-seo.faq-schema :faqs="$schemaFaqs" />
 @endsection
 
 @section('head')
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@600;700;800&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
 <style>
     .material-symbols-outlined { font-variation-settings: 'FILL' 0.75; }
     [x-cloak] { display: none !important; }
@@ -50,7 +49,7 @@
 @endsection
 
 @section('content')
-<div class="mb-16 font-sans" x-data="socialCounter('{{ isset($seo) ? $seo['preset_platform'] : 'twitter' }}')">
+<div class="mb-16 font-sans" x-data="socialCounter('{{ $seo['preset_platform'] ?? 'twitter' }}')">
     <!-- Hero Section -->
     <section class="flex flex-col items-center text-center gap-4 max-w-3xl mx-auto mb-10">
         <div class="inline-flex items-center gap-2 px-3.5 py-1.5 bg-[#006c49]/10 border border-[#006c49]/30 rounded-full shadow-md">
@@ -58,7 +57,7 @@
             <span class="font-mono text-xs text-[#006c49] uppercase tracking-wider font-extrabold">SOCIAL MEDIA TOOLS • 100% FREE &amp; CLIENT-SIDE</span>
         </div>
         <h1 class="text-3xl sm:text-4xl md:text-5xl font-extrabold text-black tracking-tight leading-tight font-sans text-center">
-            {{ isset($seo) ? $seo['h1'] : 'Multi-Platform Social Character Limit Counter' }}
+            {{ $seo['h1'] ?? 'Multi-Platform Social Character Limit Counter' }}
         </h1>
         <p class="text-base sm:text-lg text-gray-600 max-w-2xl font-medium leading-relaxed text-center font-sans">
             Track character limits, word counts, sentence counts, and reading time in real-time across LinkedIn, X (Twitter), Facebook, Threads, and Instagram.
@@ -69,7 +68,7 @@
     {{-- GEO / Answer-First Content --}}
     <div class="max-w-3xl mx-auto mb-8 px-4 sm:px-0">
         <p class="text-[15px] leading-relaxed text-gray-700 font-medium bg-white border border-gray-200 rounded-xl p-5 shadow-sm">
-            <strong>What is this tool?</strong> The Social Character Counter is a free utility that tracks character limits, word counts, sentence counts, and estimated reading times in real time. Content creators and marketers use it to format posts perfectly for LinkedIn, X (Twitter), Facebook, Threads, and Instagram, solving the problem of accidental truncation and truncated feed fold lines before publishing.
+            <strong>What is this tool?</strong> {{ $seo['answer_first'] ?? 'The Social Character Counter is a free utility that tracks character limits, word counts, sentence counts, and estimated reading times in real time. Content creators and marketers use it to format posts perfectly for LinkedIn, X (Twitter), Facebook, Threads, and Instagram, solving the problem of accidental truncation and truncated feed fold lines before publishing.' }}
         </p>
     </div>
     @endif

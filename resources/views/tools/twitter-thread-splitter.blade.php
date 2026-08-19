@@ -84,7 +84,7 @@
 @endsection
 
 @section('content')
-<div class="mb-16 font-sans" x-data="twitterSplitter(`{{ isset($seo) ? str_replace('`', '\`', $seo['preset_text']) : '' }}`)">
+<div class="mb-16 font-sans" x-data="twitterSplitter(`{{ str_replace('`', '\`', $seo['preset_text'] ?? '') }}`)">
 
     <!-- Hero Section -->
     <section class="flex flex-col items-center text-center gap-4 max-w-3xl mx-auto mb-10">
@@ -93,7 +93,7 @@
             <span class="font-mono text-xs text-[#006c49] uppercase tracking-wider font-extrabold">SOCIAL MEDIA TOOLS • 100% FREE &amp; CLIENT-SIDE</span>
         </div>
         <h1 class="text-3xl sm:text-4xl md:text-5xl font-extrabold text-black tracking-tight leading-tight font-sans text-center">
-            {{ isset($seo) ? $seo['h1'] : 'Twitter Thread Splitter & Auto-Numberer' }}
+            {{ $seo['h1'] ?? 'Twitter Thread Splitter & Auto-Numberer' }}
         </h1>
         <p class="text-base sm:text-lg text-gray-600 max-w-2xl font-medium leading-relaxed text-center font-sans">
             Convert long articles, blogs, or notes into a perfectly split X/Twitter thread with auto-numbering (1/N) and accurate 280-character t.co URL limits.
@@ -103,7 +103,7 @@
     {{-- GEO / Answer-First Content --}}
     <div class="max-w-3xl mx-auto mb-8 px-4 sm:px-0">
         <p class="text-[15px] leading-relaxed text-gray-700 font-medium bg-white border border-gray-200 rounded-xl p-5 shadow-sm">
-            <strong>What is this tool?</strong> The Twitter Thread Splitter is a free utility that automatically converts long-form text, blog posts, and articles into formatted X (Twitter) threads. Content creators use it to split drafts into 280-character tweets with auto-numbering and link weighting, solving the hassle of manual trimming, character counting, and awkward sentence cuts.
+            <strong>What is this tool?</strong> {{ $seo['answer_first'] ?? 'The Twitter Thread Splitter is a free utility that automatically converts long-form text, blog posts, and articles into formatted X (Twitter) threads. Content creators use it to split drafts into 280-character tweets with auto-numbering and link weighting, solving the hassle of manual trimming, character counting, and awkward sentence cuts.' }}
         </p>
     </div>
 

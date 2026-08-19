@@ -25,4 +25,13 @@ class SocialCharacterCounterToolTest extends TestCase
         $response->assertSee("transformText('lowercase')", false);
         $response->assertSee("transformText('titlecase')", false);
     }
+
+    public function test_social_character_counter_modifier_page_loads_successfully(): void
+    {
+        $response = $this->get('/tools/social-character-counter/for-threads');
+
+        $response->assertStatus(200);
+        $response->assertSee('Free Threads App Character Limit Counter', false);
+        $response->assertSee('Meta Threads allows up to 500 characters', false);
+    }
 }

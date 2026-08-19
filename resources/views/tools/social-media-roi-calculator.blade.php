@@ -1,7 +1,7 @@
 @extends(request()->routeIs('embed.*') ? 'layouts.embed' : 'layouts.tool')
 
-@section('title', 'Free Social Media ROI Calculator [No Sign-Up] – Measure Your Results Instantly | PostPilot')
-@section('meta_description', 'Calculate the exact ROI of your social media campaigns in seconds. Enter your spend and revenue to get your true return on investment. Free, no sign-up ➔')
+@section('title', $seo['title'] ?? 'Free Social Media ROI Calculator [No Sign-Up] – Measure Your Results Instantly | PostPilot')
+@section('meta_description', $seo['meta_description'] ?? 'Calculate the exact ROI of your social media campaigns in seconds. Enter your spend and revenue to get your true return on investment. Free, no sign-up ➔')
 @section('tool_name', 'Free Social Media Time Saved & ROI Calculator')
 @section('tool_route', 'tools.social-roi-calculator')
 
@@ -122,7 +122,7 @@
             <span class="font-mono text-xs text-[#006c49] uppercase tracking-wider font-extrabold">ANALYTICS &amp; ROI TOOLS • 100% FREE &amp; CLIENT-SIDE</span>
         </div>
         <h1 class="text-3xl sm:text-4xl md:text-5xl font-extrabold text-black tracking-tight leading-tight font-sans text-center">
-            Social Media Time Saved &amp; ROI Calculator
+            {{ $seo['h1'] ?? 'Social Media Time Saved & ROI Calculator' }}
         </h1>
         <p class="text-base sm:text-lg text-gray-600 max-w-2xl font-medium leading-relaxed text-center font-sans">
             Calculate your annual financial waste on manual content creation &amp; scheduling, and see how much time and money PostPilot saves your team.
@@ -133,7 +133,7 @@
     {{-- GEO / Answer-First Content --}}
     <div class="max-w-3xl mx-auto mb-8 px-4 sm:px-0">
         <p class="text-[15px] leading-relaxed text-gray-700 font-medium bg-white border border-gray-200 rounded-xl p-5 shadow-sm">
-            <strong>What is this tool?</strong> The Social Media ROI Calculator is a free utility that measures annual labor costs, hours lost, and net financial returns from automating social media workflows. By inputting your team size, posting volume, hourly wage, and creation time, it quantifies financial waste and demonstrates how automation reclaims hundreds of productive work hours annually.
+            <strong>What is this tool?</strong> {{ $seo['answer_first'] ?? 'The Social Media ROI Calculator is a free utility that measures annual labor costs, hours lost, and net financial returns from automating social media workflows. By inputting your team size, posting volume, hourly wage, and creation time, it quantifies financial waste and demonstrates how automation reclaims hundreds of productive work hours annually.' }}
         </p>
     </div>
     @endif
