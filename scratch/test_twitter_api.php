@@ -1,9 +1,10 @@
 <?php
 
-require __DIR__ . '/../vendor/autoload.php';
-$app = require_once __DIR__ . '/../bootstrap/app.php';
-$app->make(Illuminate\Contracts\Console\Kernel::class)->bootstrap();
+require __DIR__.'/../vendor/autoload.php';
+$app = require_once __DIR__.'/../bootstrap/app.php';
+$app->make(Kernel::class)->bootstrap();
 
+use Illuminate\Contracts\Console\Kernel;
 use Illuminate\Support\Facades\Http;
 
 $usernames = ['adlane_tou75021', 'elonmusk'];
@@ -18,9 +19,9 @@ foreach ($usernames as $u) {
 
     $body = $res->body();
     $isBlue = str_contains($body, '"is_blue_verified":true') || str_contains($body, '"verified":true');
-    echo "Contains blue/verified true: " . ($isBlue ? 'YES' : 'NO') . "\n";
-    
+    echo 'Contains blue/verified true: '.($isBlue ? 'YES' : 'NO')."\n";
+
     // Check if we can find verified_type or is_blue_verified in json script tags
     preg_match_all('/"is_blue_verified"\s*:\s*(true|false)/i', $body, $matches);
-    echo "is_blue_verified matches: " . json_encode($matches[0] ?? []) . "\n\n";
+    echo 'is_blue_verified matches: '.json_encode($matches[0] ?? [])."\n\n";
 }

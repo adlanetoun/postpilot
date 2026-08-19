@@ -1,7 +1,7 @@
 @extends('layouts.tool')
 
-@section('title', isset($seo) ? $seo['title'] : 'Free X / Twitter Thread Splitter & Auto-Numberer - PostPilot')
-@section('meta_description', isset($seo) ? $seo['meta_description'] : 'Convert long articles, blogs, or notes into a perfectly split X/Twitter thread with auto-numbering (1/N) and accurate 280-character t.co URL limits.')
+@section('title', isset($seo) ? $seo['title'] : 'Free Twitter Thread Splitter [No Sign-Up] – Auto-Number & Split in Seconds | PostPilot')
+@section('meta_description', isset($seo) ? $seo['meta_description'] : 'Split any blog post or article into a perfectly numbered Twitter/X thread instantly. Auto-chunks at 280 chars, preserves sentence breaks. 100% free ➔')
 @section('tool_name', 'Free X / Twitter Thread Splitter')
 @section('tool_route', 'tools.twitter-thread-splitter')
 

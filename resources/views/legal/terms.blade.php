@@ -27,7 +27,7 @@
         <div class="space-y-8 text-slate-300 leading-relaxed text-sm">
             <section class="space-y-3">
                 <h2 class="text-lg font-bold text-white">1. Agreement to Terms</h2>
-                <p>By accessing or using PostPilot ("the Service"), operated at https://postpilot-production-65ef.up.railway.app, you agree to be bound by these Terms of Service. If you do not agree, please do not use the Service.</p>
+                <p>By accessing or using PostPilot ("the Service"), operated at {{ url('/') }}, you agree to be bound by these Terms of Service. If you do not agree, please do not use the Service.</p>
             </section>
 
             <section class="space-y-3">

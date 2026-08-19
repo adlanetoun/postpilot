@@ -53,12 +53,12 @@
         <script type="application/ld+json">
         {
           "@@context": "https://schema.org",
-          "@@type": "SoftwareApplication",
+          "@@type": "WebApplication",
           "name": "@yield('tool_name', 'Free Social Media Tool')",
           "description": "@yield('meta_description', 'Free social media tool by PostPilot.')",
           "url": "{{ url()->current() }}",
           "applicationCategory": "BusinessApplication",
-          "operatingSystem": "Web Browser",
+          "operatingSystem": "All",
           "browserRequirements": "Requires JavaScript. Works in all modern browsers.",
           "author": {
             "@@type": "Organization",

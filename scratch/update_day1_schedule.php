@@ -1,11 +1,12 @@
 <?php
 
-require __DIR__ . '/../vendor/autoload.php';
-$app = require_once __DIR__ . '/../bootstrap/app.php';
-$kernel = $app->make(Illuminate\Contracts\Console\Kernel::class);
+require __DIR__.'/../vendor/autoload.php';
+$app = require_once __DIR__.'/../bootstrap/app.php';
+$kernel = $app->make(Kernel::class);
 $kernel->bootstrap();
 
 use App\Models\Post;
+use Illuminate\Contracts\Console\Kernel;
 
 $day1Post = Post::where('day_number', 1)->orderBy('id', 'desc')->first();
 
@@ -19,7 +20,7 @@ if ($day1Post) {
 
     echo "Day 01 Post #{$day1Post->id} updated successfully!\n";
     echo "New Scheduled Time (UTC): {$day1Post->scheduled_at}\n";
-    echo "Current Time (UTC): " . now()->format('Y-m-d H:i:s') . "\n";
+    echo 'Current Time (UTC): '.now()->format('Y-m-d H:i:s')."\n";
     echo "Time remaining: Exactly 8 minutes from now!\n";
 } else {
     echo "No Day 1 post found.\n";

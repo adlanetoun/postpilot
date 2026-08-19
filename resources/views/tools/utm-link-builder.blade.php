@@ -1,7 +1,7 @@
 @extends('layouts.tool')
 
-@section('title', 'Free GA4 UTM Link Builder & Parameter Generator - PostPilot')
-@section('meta_description', 'Generate clean, error-free Google Analytics 4 tracking links with utm_source, utm_medium, and utm_campaign parameters in seconds.')
+@section('title', 'Free UTM Link Builder [No Sign-Up] – Track Any Campaign Instantly | PostPilot')
+@section('meta_description', 'Build UTM tracking URLs for Google Analytics in seconds. Track campaigns from TikTok, Instagram, email & more. 100% free UTM generator, no sign-up ➔')
 @section('tool_name', 'Free GA4 UTM Link Builder')
 @section('tool_route', 'tools.utm-builder')
 

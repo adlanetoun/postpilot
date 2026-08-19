@@ -1,7 +1,7 @@
 @extends(request()->routeIs('embed.*') ? 'layouts.embed' : 'layouts.tool')
 
-@section('title', isset($seo) ? $seo['title'] : 'Free Multi-Platform Social Media Character Counter - PostPilot')
-@section('meta_description', isset($seo) ? $seo['meta_description'] : 'Track character limits, word counts, sentence counts, and reading time in real-time across LinkedIn, X (Twitter), Facebook, Threads, and Instagram.')
+@section('title', isset($seo) ? $seo['title'] : 'Free Social Media Character Counter [No Sign-Up] – All Platforms 2026 | PostPilot')
+@section('meta_description', isset($seo) ? $seo['meta_description'] : 'Check character limits for LinkedIn, X/Twitter, Instagram, Threads & Facebook in real-time. Free multi-platform counter, no login required. Start now ➔')
 @section('tool_name', 'Free Multi-Platform Social Character Counter')
 @section('tool_route', 'tools.social-character-counter')
 

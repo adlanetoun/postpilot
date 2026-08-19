@@ -1,11 +1,13 @@
 <?php
 
-require __DIR__ . '/../vendor/autoload.php';
-$app = require_once __DIR__ . '/../bootstrap/app.php';
-$kernel = $app->make(Illuminate\Contracts\Console\Kernel::class);
+require __DIR__.'/../vendor/autoload.php';
+$app = require_once __DIR__.'/../bootstrap/app.php';
+$kernel = $app->make(Kernel::class);
 $kernel->bootstrap();
 
+use App\Models\Campaign;
 use App\Models\Post;
+use Illuminate\Contracts\Console\Kernel;
 
 $recentPublished = Post::where('status', 'published')
     ->orderBy('published_at', 'desc')
@@ -16,7 +18,7 @@ if ($recentPublished) {
     echo "ID: {$recentPublished->id}\n";
     echo "Day: {$recentPublished->day_number}\n";
     echo "Campaign ID: {$recentPublished->campaign_id}\n";
-    echo "Is Demo: " . ($recentPublished->is_demo ? 'YES (Stub)' : 'NO (Real)') . "\n";
+    echo 'Is Demo: '.($recentPublished->is_demo ? 'YES (Stub)' : 'NO (Real)')."\n";
     echo "Published At: {$recentPublished->published_at}\n";
     echo "Content:\n{$recentPublished->content}\n";
     echo "Platform Post IDs: {$recentPublished->platform_post_id}\n";
@@ -26,7 +28,7 @@ if ($recentPublished) {
 }
 
 echo "\n=== ALL CAMPAIGNS FOR THIS PROJECT ===\n";
-$campaigns = \App\Models\Campaign::with('posts')->orderBy('id', 'desc')->get();
+$campaigns = Campaign::with('posts')->orderBy('id', 'desc')->get();
 foreach ($campaigns as $c) {
-    echo "Campaign #{$c->id} | Status: {$c->status} | Is Demo: " . ($c->is_demo ? 'YES' : 'NO') . " | Post Count: " . $c->posts->count() . "\n";
+    echo "Campaign #{$c->id} | Status: {$c->status} | Is Demo: ".($c->is_demo ? 'YES' : 'NO').' | Post Count: '.$c->posts->count()."\n";
 }

@@ -1,7 +1,7 @@
 @extends('layouts.tool')
 
-@section('title', 'Free LinkedIn Paragraph Spacing & Line Break Formatter - PostPilot')
-@section('meta_description', 'Format clean LinkedIn posts with zero-width invisible line breaks so LinkedIn never collapses your blank lines upon pasting.')
+@section('title', 'Free LinkedIn Line Break Generator [No Sign-Up] – Fix Mobile Formatting | PostPilot')
+@section('meta_description', 'Stop LinkedIn from collapsing your paragraphs on mobile. Add invisible line breaks that work on all devices. Free formatter, no login required. Try now ➔')
 @section('tool_name', 'Free LinkedIn Line Break Formatter')
 @section('tool_route', 'tools.linkedin-line-break')
 

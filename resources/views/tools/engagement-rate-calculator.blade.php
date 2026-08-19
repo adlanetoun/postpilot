@@ -1,7 +1,7 @@
 @extends('layouts.tool')
 
-@section('title', 'Free Social Media Engagement Rate Calculator - PostPilot')
-@section('meta_description', 'Calculate post & account engagement rate percentage, letter grade (A+ to F), and industry benchmarks across LinkedIn, Instagram, TikTok, X, and Facebook.')
+@section('title', 'Free Engagement Rate Calculator [No Sign-Up] – Instagram, TikTok & LinkedIn | PostPilot')
+@section('meta_description', 'Calculate your true social media engagement rate across all platforms instantly. Enter followers & interactions to benchmark your performance. Free tool ➔')
 @section('tool_name', 'Free Social Media Engagement Rate Calculator')
 @section('tool_route', 'tools.engagement-calculator')
 

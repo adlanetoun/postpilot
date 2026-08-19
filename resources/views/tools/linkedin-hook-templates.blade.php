@@ -1,7 +1,7 @@
 @extends('layouts.tool')
 
-@section('title', 'Free LinkedIn Hook Generator Template Matrix - PostPilot')
-@section('meta_description', 'Generate viral LinkedIn hooks instantly. Filter 25+ proven opening hook templates across Contrarian, Story, Curiosity, Listicle, and Metric categories with live topic, metric, and year interpolation.')
+@section('title', 'Free LinkedIn Hook Templates [No Sign-Up] – 50+ Viral Opening Lines | PostPilot')
+@section('meta_description', 'Generate high-converting LinkedIn hooks that stop the scroll. 50+ proven templates for founders, marketers & creators. 100% free, no login required ➔')
 @section('tool_name', 'Free LinkedIn Hook Generator Template Matrix')
 @section('tool_route', 'tools.linkedin-hooks')
 

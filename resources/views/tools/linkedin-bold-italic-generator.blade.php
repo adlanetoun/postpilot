@@ -1,7 +1,7 @@
 @extends('layouts.tool')
 
-@section('title', 'Free LinkedIn Bold & Italic Unicode Text Generator - PostPilot')
-@section('meta_description', 'Format LinkedIn and X/Twitter posts with mathematical Unicode bold, italic, monospace, script, double-struck, and circled text formatting. 100% free with instant copy.')
+@section('title', 'Free LinkedIn Bold & Italic Text Generator [No Sign-Up] – Unicode Formatter | PostPilot')
+@section('meta_description', 'Make your LinkedIn posts & headlines stand out with bold and italic unicode text. Instant formatting, copy & paste ready. 100% free, no account needed ➔')
 @section('tool_name', 'Free LinkedIn Bold & Italic Unicode Text Formatter')
 @section('tool_route', 'tools.linkedin-bold-italic')
 

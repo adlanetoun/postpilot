@@ -1,7 +1,7 @@
 @extends(request()->routeIs('embed.*') ? 'layouts.embed' : 'layouts.tool')
 
-@section('title', 'Free Social Media Time Saved & ROI Calculator - PostPilot')
-@section('meta_description', 'Calculate exact annual hours and labor dollars lost on manual social media creation versus operating on PostPilot automated autopilot scheduling.')
+@section('title', 'Free Social Media ROI Calculator [No Sign-Up] – Measure Your Results Instantly | PostPilot')
+@section('meta_description', 'Calculate the exact ROI of your social media campaigns in seconds. Enter your spend and revenue to get your true return on investment. Free, no sign-up ➔')
 @section('tool_name', 'Free Social Media Time Saved & ROI Calculator')
 @section('tool_route', 'tools.social-roi-calculator')
 

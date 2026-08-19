@@ -73,7 +73,7 @@ return [
     'twitter-oauth-2' => [
         'client_id' => env('TWITTER_CLIENT_ID'),
         'client_secret' => env('TWITTER_CLIENT_SECRET'),
-        'redirect' => env('TWITTER_REDIRECT_URI'),
+        'redirect' => env('TWITTER_REDIRECT_URI') ?: (env('APP_URL', 'https://postpilot.sbs').'/settings/socials/callback/twitter'),
     ],
 
 ];

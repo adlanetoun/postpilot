@@ -1,7 +1,7 @@
 @extends('layouts.tool')
 
-@section('title', 'Free 30-Day Content Calendar Generator & CSV Exporter - PostPilot')
-@section('meta_description', 'Generate a structured 30-day social media matrix balancing 40% Educational, 30% Proof, 20% Story, and 10% Offer content with instant CSV export and one-click copying.')
+@section('title', 'Free 30-Day Social Media Content Calendar [No Sign-Up] – AI-Powered | PostPilot')
+@section('meta_description', 'Plan a full month of LinkedIn, Twitter/X & Facebook content in minutes. Free AI-powered 30-day content calendar template. No sign-up required. Start ➔')
 @section('tool_name', 'Free 30-Day Content Calendar Generator')
 @section('tool_route', 'tools.content-calendar-template')
 

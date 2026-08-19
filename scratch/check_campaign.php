@@ -1,12 +1,16 @@
 <?php
 
-require __DIR__ . '/../vendor/autoload.php';
-$app = require_once __DIR__ . '/../bootstrap/app.php';
-$app->make(Illuminate\Contracts\Console\Kernel::class)->bootstrap();
+use App\Models\Campaign;
+use App\Models\Post;
+use Illuminate\Contracts\Console\Kernel;
 
-$c = App\Models\Campaign::find(9);
-echo "Campaign #9 Platforms: " . json_encode($c->platforms) . "\n";
-echo "Campaign #9 Status: " . $c->status . "\n";
+require __DIR__.'/../vendor/autoload.php';
+$app = require_once __DIR__.'/../bootstrap/app.php';
+$app->make(Kernel::class)->bootstrap();
+
+$c = Campaign::find(9);
+echo 'Campaign #9 Platforms: '.json_encode($c->platforms)."\n";
+echo 'Campaign #9 Status: '.$c->status."\n";
 
 // Let's update platforms to ['linkedin', 'twitter', 'facebook'] if empty
 if (empty($c->platforms)) {
@@ -16,11 +20,11 @@ if (empty($c->platforms)) {
 }
 
 // Reset Post #219 status back to 'approved' if it was marked as failed
-$post = App\Models\Post::find(219);
+$post = Post::find(219);
 if ($post) {
     $post->status = 'approved';
     $post->scheduled_at = now()->subMinutes(5);
     $post->error_message = null;
     $post->save();
-    echo "Reset Post #219 status to 'approved' with scheduled_at = " . $post->scheduled_at . "\n";
+    echo "Reset Post #219 status to 'approved' with scheduled_at = ".$post->scheduled_at."\n";
 }

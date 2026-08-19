@@ -1,7 +1,7 @@
 @extends('layouts.tool')
 
-@section('title', 'Free LinkedIn Post Preview & See More Fold Checker - PostPilot')
-@section('meta_description', 'Preview how your LinkedIn posts look live on Desktop and Mobile before publishing. Instantly check where the "...see more" fold cutoff hides your hook.')
+@section('title', 'Free LinkedIn Post Preview Tool [No Sign-Up] – See More Fold Checker | PostPilot')
+@section('meta_description', 'Preview exactly where LinkedIn truncates your post with the "see more" button. Free desktop & mobile simulator. No sign-up, no limits, instant results ➔')
 @section('tool_name', 'Free LinkedIn Post Preview & See More Fold Checker')
 @section('tool_route', 'tools.linkedin-preview')
 
