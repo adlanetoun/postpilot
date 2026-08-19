@@ -14,7 +14,7 @@ class TwitterThreadSplitterToolTest extends TestCase
         $response = $this->get(route('tools.twitter-thread-splitter'));
 
         $response->assertStatus(200);
-        $response->assertSee('X / Twitter Thread Splitter &amp; Auto-Numberer', false);
+        $response->assertSee('Free Twitter Thread Splitter [No Sign-Up]', false);
         $response->assertSee('x-data="twitterSplitter(', false);
         $response->assertSee('getTwitterLength', false);
         $response->assertSee('splitThread', false);

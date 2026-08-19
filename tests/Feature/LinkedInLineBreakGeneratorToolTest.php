@@ -11,7 +11,7 @@ class LinkedInLineBreakGeneratorToolTest extends TestCase
         $response = $this->get(route('tools.linkedin-line-break'));
 
         $response->assertStatus(200);
-        $response->assertSee('LinkedIn Paragraph Spacing &amp; Line Break Formatter', false);
+        $response->assertSee('Free LinkedIn Line Break Formatter', false);
         $response->assertSee('lineBreakFormatter()', false);
         $response->assertSee('rawText', false);
         $response->assertSee('formattedText', false);
